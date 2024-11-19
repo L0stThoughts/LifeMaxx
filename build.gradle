@@ -1,0 +1,18 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()  // Ensure mavenCentral is included
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.7.2'
+        // or the appropriate version for your project
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()  // Make sure mavenCentral is included here as well
+    }
+}

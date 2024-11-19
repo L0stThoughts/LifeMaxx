@@ -1,0 +1,47 @@
+{
+    "project_info": {
+      "project_number": "705317926236",
+      "project_id": "lifemaxx-eac71",
+      "storage_bucket": "lifemaxx-eac71.firebasestorage.app"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:705317926236:android:527c3b4f9276922051bd99",
+          "android_client_info": {
+            "package_name": "com.example.lifemaxx"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "705317926236-mt51b4k9ah8l4k6ltqbu7323rohmnnh5.apps.googleusercontent.com",
+            "client_type": 1,
+            "android_info": {
+              "package_name": "com.example.lifemaxx",
+              "certificate_hash": "6634e3c68e47d1f2859bc21536cff09a4d38b5a3"
+            }
+          },
+          {
+            "client_id": "705317926236-7bnvhci2cfhm6nlmifhe7kbeljtjm5ge.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyBwbHedW8MJN38ZI9o7uyZGfHPuT1By2-0"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": [
+              {
+                "client_id": "705317926236-7bnvhci2cfhm6nlmifhe7kbeljtjm5ge.apps.googleusercontent.com",
+                "client_type": 3
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }

@@ -1,0 +1,431 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.lifemaxx"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+7-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:6:5-44
+8        android:minSdkVersion="23"
+8-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:6:15-41
+9        android:targetSdkVersion="35" />
+9-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:6:5-44
+10    <!-- Although the *SdkVersion is captured in gradle build files, this is required for non gradle builds -->
+11    <!-- <uses-sdk android:minSdkVersion="21" /> -->
+12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+12-->[com.google.firebase:firebase-firestore:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\84e6ab5855df106079afe6fda587de5d\transformed\jetified-firebase-firestore-25.1.1\AndroidManifest.xml:10:5-79
+12-->[com.google.firebase:firebase-firestore:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\84e6ab5855df106079afe6fda587de5d\transformed\jetified-firebase-firestore-25.1.1\AndroidManifest.xml:10:22-76
+13    <uses-permission android:name="android.permission.INTERNET" />
+13-->[com.google.firebase:firebase-firestore:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\84e6ab5855df106079afe6fda587de5d\transformed\jetified-firebase-firestore-25.1.1\AndroidManifest.xml:11:5-67
+13-->[com.google.firebase:firebase-firestore:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\84e6ab5855df106079afe6fda587de5d\transformed\jetified-firebase-firestore-25.1.1\AndroidManifest.xml:11:22-64
+14    <uses-permission android:name="android.permission.WAKE_LOCK" />
+14-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:24:5-68
+14-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:24:22-65
+15    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+15-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:25:5-79
+15-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:25:22-76
+16    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION" />
+16-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:26:5-88
+16-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:26:22-85
+17    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID" />
+17-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:27:5-82
+17-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:27:22-79
+18    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+18-->[com.google.android.recaptcha:recaptcha:18.5.1] C:\Users\lost\.gradle\caches\8.11\transforms\223f2264785076c6ee38cf51ddc212dc\transformed\jetified-recaptcha-18.5.1\AndroidManifest.xml:9:5-98
+18-->[com.google.android.recaptcha:recaptcha:18.5.1] C:\Users\lost\.gradle\caches\8.11\transforms\223f2264785076c6ee38cf51ddc212dc\transformed\jetified-recaptcha-18.5.1\AndroidManifest.xml:9:22-95
+19    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE" />
+19-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:26:5-110
+19-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:26:22-107
+20
+21    <permission
+21-->[androidx.core:core:1.15.0] C:\Users\lost\.gradle\caches\8.11\transforms\6dbdbd8e1f73de2f50f1fd263e0b55cc\transformed\core-1.15.0\AndroidManifest.xml:22:5-24:47
+22        android:name="com.example.lifemaxx.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+22-->[androidx.core:core:1.15.0] C:\Users\lost\.gradle\caches\8.11\transforms\6dbdbd8e1f73de2f50f1fd263e0b55cc\transformed\core-1.15.0\AndroidManifest.xml:23:9-81
+23        android:protectionLevel="signature" />
+23-->[androidx.core:core:1.15.0] C:\Users\lost\.gradle\caches\8.11\transforms\6dbdbd8e1f73de2f50f1fd263e0b55cc\transformed\core-1.15.0\AndroidManifest.xml:24:9-44
+24
+25    <uses-permission android:name="com.example.lifemaxx.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+25-->[androidx.core:core:1.15.0] C:\Users\lost\.gradle\caches\8.11\transforms\6dbdbd8e1f73de2f50f1fd263e0b55cc\transformed\core-1.15.0\AndroidManifest.xml:26:5-97
+25-->[androidx.core:core:1.15.0] C:\Users\lost\.gradle\caches\8.11\transforms\6dbdbd8e1f73de2f50f1fd263e0b55cc\transformed\core-1.15.0\AndroidManifest.xml:26:22-94
+26
+27    <application
+27-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:8:5-24:19
+28        android:allowBackup="true"
+28-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:9:9-35
+29        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+29-->[androidx.core:core:1.15.0] C:\Users\lost\.gradle\caches\8.11\transforms\6dbdbd8e1f73de2f50f1fd263e0b55cc\transformed\core-1.15.0\AndroidManifest.xml:28:18-86
+30        android:extractNativeLibs="false"
+31        android:icon="@mipmap/ic_launcher"
+31-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:10:9-43
+32        android:label="@string/app_name"
+32-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:11:9-41
+33        android:theme="@style/Theme.LifeMaxx" >
+33-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:12:9-46
+34
+35        <!-- Main Activity -->
+36        <activity
+36-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:15:9-22:20
+37            android:name="com.example.lifemaxx.MainActivity"
+37-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:16:13-41
+38            android:exported="true" > <!-- Add android:exported here -->
+38-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:17:13-36
+39            <intent-filter>
+39-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:18:13-21:29
+40                <action android:name="android.intent.action.MAIN" />
+40-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:19:17-69
+40-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:19:25-66
+41
+42                <category android:name="android.intent.category.LAUNCHER" />
+42-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:20:17-77
+42-->A:\Documents\LifeMaxx\app\src\main\AndroidManifest.xml:20:27-74
+43            </intent-filter>
+44        </activity>
+45
+46        <service
+46-->[com.google.firebase:firebase-firestore-ktx:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\90bff69fbc9111c5da9fd820eca9105f\transformed\jetified-firebase-firestore-ktx-25.1.1\AndroidManifest.xml:9:9-15:19
+47            android:name="com.google.firebase.components.ComponentDiscoveryService"
+47-->[com.google.firebase:firebase-firestore-ktx:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\90bff69fbc9111c5da9fd820eca9105f\transformed\jetified-firebase-firestore-ktx-25.1.1\AndroidManifest.xml:10:13-84
+48            android:directBootAware="true"
+48-->[com.google.firebase:firebase-common:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\0b57fd59b0efb850c7a6e64c64c2b784\transformed\jetified-firebase-common-21.0.0\AndroidManifest.xml:32:13-43
+49            android:exported="false" >
+49-->[com.google.firebase:firebase-firestore-ktx:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\90bff69fbc9111c5da9fd820eca9105f\transformed\jetified-firebase-firestore-ktx-25.1.1\AndroidManifest.xml:11:13-37
+50            <meta-data
+50-->[com.google.firebase:firebase-firestore-ktx:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\90bff69fbc9111c5da9fd820eca9105f\transformed\jetified-firebase-firestore-ktx-25.1.1\AndroidManifest.xml:12:13-14:85
+51                android:name="com.google.firebase.components:com.google.firebase.firestore.ktx.FirebaseFirestoreLegacyRegistrar"
+51-->[com.google.firebase:firebase-firestore-ktx:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\90bff69fbc9111c5da9fd820eca9105f\transformed\jetified-firebase-firestore-ktx-25.1.1\AndroidManifest.xml:13:17-129
+52                android:value="com.google.firebase.components.ComponentRegistrar" />
+52-->[com.google.firebase:firebase-firestore-ktx:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\90bff69fbc9111c5da9fd820eca9105f\transformed\jetified-firebase-firestore-ktx-25.1.1\AndroidManifest.xml:14:17-82
+53            <meta-data
+53-->[com.google.firebase:firebase-auth-ktx:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\5a0b5e5da8748e4401526254a147a1fc\transformed\jetified-firebase-auth-ktx-23.1.0\AndroidManifest.xml:11:13-13:85
+54                android:name="com.google.firebase.components:com.google.firebase.auth.ktx.FirebaseAuthLegacyRegistrar"
+54-->[com.google.firebase:firebase-auth-ktx:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\5a0b5e5da8748e4401526254a147a1fc\transformed\jetified-firebase-auth-ktx-23.1.0\AndroidManifest.xml:12:17-119
+55                android:value="com.google.firebase.components.ComponentRegistrar" />
+55-->[com.google.firebase:firebase-auth-ktx:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\5a0b5e5da8748e4401526254a147a1fc\transformed\jetified-firebase-auth-ktx-23.1.0\AndroidManifest.xml:13:17-82
+56            <meta-data
+56-->[com.google.firebase:firebase-analytics-ktx:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\610eed1f4d0265906f404ac2ce99b469\transformed\jetified-firebase-analytics-ktx-22.1.2\AndroidManifest.xml:11:13-13:85
+57                android:name="com.google.firebase.components:com.google.firebase.analytics.ktx.FirebaseAnalyticsLegacyRegistrar"
+57-->[com.google.firebase:firebase-analytics-ktx:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\610eed1f4d0265906f404ac2ce99b469\transformed\jetified-firebase-analytics-ktx-22.1.2\AndroidManifest.xml:12:17-129
+58                android:value="com.google.firebase.components.ComponentRegistrar" />
+58-->[com.google.firebase:firebase-analytics-ktx:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\610eed1f4d0265906f404ac2ce99b469\transformed\jetified-firebase-analytics-ktx-22.1.2\AndroidManifest.xml:13:17-82
+59            <meta-data
+59-->[com.google.firebase:firebase-firestore:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\84e6ab5855df106079afe6fda587de5d\transformed\jetified-firebase-firestore-25.1.1\AndroidManifest.xml:17:13-19:85
+60                android:name="com.google.firebase.components:com.google.firebase.firestore.FirebaseFirestoreKtxRegistrar"
+60-->[com.google.firebase:firebase-firestore:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\84e6ab5855df106079afe6fda587de5d\transformed\jetified-firebase-firestore-25.1.1\AndroidManifest.xml:18:17-122
+61                android:value="com.google.firebase.components.ComponentRegistrar" />
+61-->[com.google.firebase:firebase-firestore:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\84e6ab5855df106079afe6fda587de5d\transformed\jetified-firebase-firestore-25.1.1\AndroidManifest.xml:19:17-82
+62            <meta-data
+62-->[com.google.firebase:firebase-firestore:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\84e6ab5855df106079afe6fda587de5d\transformed\jetified-firebase-firestore-25.1.1\AndroidManifest.xml:20:13-22:85
+63                android:name="com.google.firebase.components:com.google.firebase.firestore.FirestoreRegistrar"
+63-->[com.google.firebase:firebase-firestore:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\84e6ab5855df106079afe6fda587de5d\transformed\jetified-firebase-firestore-25.1.1\AndroidManifest.xml:21:17-111
+64                android:value="com.google.firebase.components.ComponentRegistrar" />
+64-->[com.google.firebase:firebase-firestore:25.1.1] C:\Users\lost\.gradle\caches\8.11\transforms\84e6ab5855df106079afe6fda587de5d\transformed\jetified-firebase-firestore-25.1.1\AndroidManifest.xml:22:17-82
+65            <meta-data
+65-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:69:13-71:85
+66                android:name="com.google.firebase.components:com.google.firebase.auth.FirebaseAuthRegistrar"
+66-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:70:17-109
+67                android:value="com.google.firebase.components.ComponentRegistrar" />
+67-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:71:17-82
+68            <meta-data
+68-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:37:13-39:85
+69                android:name="com.google.firebase.components:com.google.firebase.analytics.connector.internal.AnalyticsConnectorRegistrar"
+69-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:38:17-139
+70                android:value="com.google.firebase.components.ComponentRegistrar" />
+70-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:39:17-82
+71            <meta-data
+71-->[com.google.firebase:firebase-common-ktx:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\64e323c2d54ddb41290e3c2102d27448\transformed\jetified-firebase-common-ktx-21.0.0\AndroidManifest.xml:12:13-14:85
+72                android:name="com.google.firebase.components:com.google.firebase.ktx.FirebaseCommonLegacyRegistrar"
+72-->[com.google.firebase:firebase-common-ktx:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\64e323c2d54ddb41290e3c2102d27448\transformed\jetified-firebase-common-ktx-21.0.0\AndroidManifest.xml:13:17-116
+73                android:value="com.google.firebase.components.ComponentRegistrar" />
+73-->[com.google.firebase:firebase-common-ktx:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\64e323c2d54ddb41290e3c2102d27448\transformed\jetified-firebase-common-ktx-21.0.0\AndroidManifest.xml:14:17-82
+74            <meta-data
+74-->[com.google.firebase:firebase-installations:17.0.1] C:\Users\lost\.gradle\caches\8.11\transforms\3b038deab1a14dcf06c818e8c4320b0f\transformed\jetified-firebase-installations-17.0.1\AndroidManifest.xml:18:13-20:85
+75                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar"
+75-->[com.google.firebase:firebase-installations:17.0.1] C:\Users\lost\.gradle\caches\8.11\transforms\3b038deab1a14dcf06c818e8c4320b0f\transformed\jetified-firebase-installations-17.0.1\AndroidManifest.xml:19:17-127
+76                android:value="com.google.firebase.components.ComponentRegistrar" />
+76-->[com.google.firebase:firebase-installations:17.0.1] C:\Users\lost\.gradle\caches\8.11\transforms\3b038deab1a14dcf06c818e8c4320b0f\transformed\jetified-firebase-installations-17.0.1\AndroidManifest.xml:20:17-82
+77            <meta-data
+77-->[com.google.firebase:firebase-common:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\0b57fd59b0efb850c7a6e64c64c2b784\transformed\jetified-firebase-common-21.0.0\AndroidManifest.xml:35:13-37:85
+78                android:name="com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar"
+78-->[com.google.firebase:firebase-common:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\0b57fd59b0efb850c7a6e64c64c2b784\transformed\jetified-firebase-common-21.0.0\AndroidManifest.xml:36:17-109
+79                android:value="com.google.firebase.components.ComponentRegistrar" />
+79-->[com.google.firebase:firebase-common:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\0b57fd59b0efb850c7a6e64c64c2b784\transformed\jetified-firebase-common-21.0.0\AndroidManifest.xml:37:17-82
+80        </service>
+81
+82        <activity
+82-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:29:9-46:20
+83            android:name="com.google.firebase.auth.internal.GenericIdpActivity"
+83-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:30:13-80
+84            android:excludeFromRecents="true"
+84-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:31:13-46
+85            android:exported="true"
+85-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:32:13-36
+86            android:launchMode="singleTask"
+86-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:33:13-44
+87            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+87-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:34:13-72
+88            <intent-filter>
+88-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:35:13-45:29
+89                <action android:name="android.intent.action.VIEW" />
+89-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:36:17-69
+89-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:36:25-66
+90
+91                <category android:name="android.intent.category.DEFAULT" />
+91-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:38:17-76
+91-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:38:27-73
+92                <category android:name="android.intent.category.BROWSABLE" />
+92-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:39:17-78
+92-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:39:27-75
+93
+94                <data
+94-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:41:17-44:51
+95                    android:host="firebase.auth"
+95-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:42:21-49
+96                    android:path="/"
+96-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:43:21-37
+97                    android:scheme="genericidp" />
+97-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:44:21-48
+98            </intent-filter>
+99        </activity>
+100        <activity
+100-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:47:9-64:20
+101            android:name="com.google.firebase.auth.internal.RecaptchaActivity"
+101-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:48:13-79
+102            android:excludeFromRecents="true"
+102-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:49:13-46
+103            android:exported="true"
+103-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:50:13-36
+104            android:launchMode="singleTask"
+104-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:51:13-44
+105            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+105-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:52:13-72
+106            <intent-filter>
+106-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:53:13-63:29
+107                <action android:name="android.intent.action.VIEW" />
+107-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:36:17-69
+107-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:36:25-66
+108
+109                <category android:name="android.intent.category.DEFAULT" />
+109-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:38:17-76
+109-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:38:27-73
+110                <category android:name="android.intent.category.BROWSABLE" />
+110-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:39:17-78
+110-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:39:27-75
+111
+112                <data
+112-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:41:17-44:51
+113                    android:host="firebase.auth"
+113-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:42:21-49
+114                    android:path="/"
+114-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:43:21-37
+115                    android:scheme="recaptcha" />
+115-->[com.google.firebase:firebase-auth:23.1.0] C:\Users\lost\.gradle\caches\8.11\transforms\351288e5c14bdf164b047f5e59a8fd8b\transformed\jetified-firebase-auth-23.1.0\AndroidManifest.xml:44:21-48
+116            </intent-filter>
+117        </activity>
+118
+119        <property
+119-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:30:9-32:61
+120            android:name="android.adservices.AD_SERVICES_CONFIG"
+120-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:31:13-65
+121            android:resource="@xml/ga_ad_services_config" />
+121-->[com.google.android.gms:play-services-measurement-api:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\233598a007654f807e41108dd4b168f4\transformed\jetified-play-services-measurement-api-22.1.2\AndroidManifest.xml:32:13-58
+122
+123        <service
+123-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:24:9-32:19
+124            android:name="androidx.credentials.playservices.CredentialProviderMetadataHolder"
+124-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:25:13-94
+125            android:enabled="true"
+125-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:26:13-35
+126            android:exported="false" >
+126-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:27:13-37
+127            <meta-data
+127-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:29:13-31:104
+128                android:name="androidx.credentials.CREDENTIAL_PROVIDER_KEY"
+128-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:30:17-76
+129                android:value="androidx.credentials.playservices.CredentialProviderPlayServicesImpl" />
+129-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:31:17-101
+130        </service>
+131
+132        <activity
+132-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:34:9-41:20
+133            android:name="androidx.credentials.playservices.HiddenActivity"
+133-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:35:13-76
+134            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+134-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:36:13-87
+135            android:enabled="true"
+135-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:37:13-35
+136            android:exported="false"
+136-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:38:13-37
+137            android:fitsSystemWindows="true"
+137-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:39:13-45
+138            android:theme="@style/Theme.Hidden" >
+138-->[androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\lost\.gradle\caches\8.11\transforms\bb874a799740cbe8ebc8e0540a18adaf\transformed\jetified-credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:40:13-48
+139        </activity>
+140
+141        <provider
+141-->[com.google.firebase:firebase-common:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\0b57fd59b0efb850c7a6e64c64c2b784\transformed\jetified-firebase-common-21.0.0\AndroidManifest.xml:23:9-28:39
+142            android:name="com.google.firebase.provider.FirebaseInitProvider"
+142-->[com.google.firebase:firebase-common:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\0b57fd59b0efb850c7a6e64c64c2b784\transformed\jetified-firebase-common-21.0.0\AndroidManifest.xml:24:13-77
+143            android:authorities="com.example.lifemaxx.firebaseinitprovider"
+143-->[com.google.firebase:firebase-common:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\0b57fd59b0efb850c7a6e64c64c2b784\transformed\jetified-firebase-common-21.0.0\AndroidManifest.xml:25:13-72
+144            android:directBootAware="true"
+144-->[com.google.firebase:firebase-common:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\0b57fd59b0efb850c7a6e64c64c2b784\transformed\jetified-firebase-common-21.0.0\AndroidManifest.xml:26:13-43
+145            android:exported="false"
+145-->[com.google.firebase:firebase-common:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\0b57fd59b0efb850c7a6e64c64c2b784\transformed\jetified-firebase-common-21.0.0\AndroidManifest.xml:27:13-37
+146            android:initOrder="100" />
+146-->[com.google.firebase:firebase-common:21.0.0] C:\Users\lost\.gradle\caches\8.11\transforms\0b57fd59b0efb850c7a6e64c64c2b784\transformed\jetified-firebase-common-21.0.0\AndroidManifest.xml:28:13-36
+147
+148        <activity
+148-->[com.google.android.gms:play-services-auth:20.7.0] C:\Users\lost\.gradle\caches\8.11\transforms\ce578c13d4ab84f9a81487ba5830b232\transformed\jetified-play-services-auth-20.7.0\AndroidManifest.xml:23:9-27:75
+149            android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
+149-->[com.google.android.gms:play-services-auth:20.7.0] C:\Users\lost\.gradle\caches\8.11\transforms\ce578c13d4ab84f9a81487ba5830b232\transformed\jetified-play-services-auth-20.7.0\AndroidManifest.xml:24:13-93
+150            android:excludeFromRecents="true"
+150-->[com.google.android.gms:play-services-auth:20.7.0] C:\Users\lost\.gradle\caches\8.11\transforms\ce578c13d4ab84f9a81487ba5830b232\transformed\jetified-play-services-auth-20.7.0\AndroidManifest.xml:25:13-46
+151            android:exported="false"
+151-->[com.google.android.gms:play-services-auth:20.7.0] C:\Users\lost\.gradle\caches\8.11\transforms\ce578c13d4ab84f9a81487ba5830b232\transformed\jetified-play-services-auth-20.7.0\AndroidManifest.xml:26:13-37
+152            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+152-->[com.google.android.gms:play-services-auth:20.7.0] C:\Users\lost\.gradle\caches\8.11\transforms\ce578c13d4ab84f9a81487ba5830b232\transformed\jetified-play-services-auth-20.7.0\AndroidManifest.xml:27:13-72
+153        <!--
+154            Service handling Google Sign-In user revocation. For apps that do not integrate with
+155            Google Sign-In, this service will never be started.
+156        -->
+157        <service
+157-->[com.google.android.gms:play-services-auth:20.7.0] C:\Users\lost\.gradle\caches\8.11\transforms\ce578c13d4ab84f9a81487ba5830b232\transformed\jetified-play-services-auth-20.7.0\AndroidManifest.xml:33:9-37:51
+158            android:name="com.google.android.gms.auth.api.signin.RevocationBoundService"
+158-->[com.google.android.gms:play-services-auth:20.7.0] C:\Users\lost\.gradle\caches\8.11\transforms\ce578c13d4ab84f9a81487ba5830b232\transformed\jetified-play-services-auth-20.7.0\AndroidManifest.xml:34:13-89
+159            android:exported="true"
+159-->[com.google.android.gms:play-services-auth:20.7.0] C:\Users\lost\.gradle\caches\8.11\transforms\ce578c13d4ab84f9a81487ba5830b232\transformed\jetified-play-services-auth-20.7.0\AndroidManifest.xml:35:13-36
+160            android:permission="com.google.android.gms.auth.api.signin.permission.REVOCATION_NOTIFICATION"
+160-->[com.google.android.gms:play-services-auth:20.7.0] C:\Users\lost\.gradle\caches\8.11\transforms\ce578c13d4ab84f9a81487ba5830b232\transformed\jetified-play-services-auth-20.7.0\AndroidManifest.xml:36:13-107
+161            android:visibleToInstantApps="true" />
+161-->[com.google.android.gms:play-services-auth:20.7.0] C:\Users\lost\.gradle\caches\8.11\transforms\ce578c13d4ab84f9a81487ba5830b232\transformed\jetified-play-services-auth-20.7.0\AndroidManifest.xml:37:13-48
+162
+163        <receiver
+163-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:29:9-33:20
+164            android:name="com.google.android.gms.measurement.AppMeasurementReceiver"
+164-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:30:13-85
+165            android:enabled="true"
+165-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:31:13-35
+166            android:exported="false" >
+166-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:32:13-37
+167        </receiver>
+168
+169        <service
+169-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:35:9-38:40
+170            android:name="com.google.android.gms.measurement.AppMeasurementService"
+170-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:36:13-84
+171            android:enabled="true"
+171-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:37:13-35
+172            android:exported="false" />
+172-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:38:13-37
+173        <service
+173-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:39:9-43:72
+174            android:name="com.google.android.gms.measurement.AppMeasurementJobService"
+174-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:40:13-87
+175            android:enabled="true"
+175-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:41:13-35
+176            android:exported="false"
+176-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:42:13-37
+177            android:permission="android.permission.BIND_JOB_SERVICE" />
+177-->[com.google.android.gms:play-services-measurement:22.1.2] C:\Users\lost\.gradle\caches\8.11\transforms\85ee9e7f44459a089e4b7a79ac367a13\transformed\jetified-play-services-measurement-22.1.2\AndroidManifest.xml:43:13-69
+178
+179        <activity
+179-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\lost\.gradle\caches\8.11\transforms\bf56f0552558a2a2fcc01cdc4c2ff08e\transformed\jetified-play-services-base-18.5.0\AndroidManifest.xml:5:9-173
+180            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+180-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\lost\.gradle\caches\8.11\transforms\bf56f0552558a2a2fcc01cdc4c2ff08e\transformed\jetified-play-services-base-18.5.0\AndroidManifest.xml:5:19-85
+181            android:exported="false"
+181-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\lost\.gradle\caches\8.11\transforms\bf56f0552558a2a2fcc01cdc4c2ff08e\transformed\jetified-play-services-base-18.5.0\AndroidManifest.xml:5:146-170
+182            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+182-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\lost\.gradle\caches\8.11\transforms\bf56f0552558a2a2fcc01cdc4c2ff08e\transformed\jetified-play-services-base-18.5.0\AndroidManifest.xml:5:86-145
+183
+184        <meta-data
+184-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\e13671545c02830c858c2778e30ff2ad\transformed\jetified-play-services-basement-18.4.0\AndroidManifest.xml:6:9-122
+185            android:name="com.google.android.gms.version"
+185-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\e13671545c02830c858c2778e30ff2ad\transformed\jetified-play-services-basement-18.4.0\AndroidManifest.xml:6:20-65
+186            android:value="@integer/google_play_services_version" />
+186-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\e13671545c02830c858c2778e30ff2ad\transformed\jetified-play-services-basement-18.4.0\AndroidManifest.xml:6:66-119
+187
+188        <uses-library
+188-->[androidx.privacysandbox.ads:ads-adservices:1.0.0-beta05] C:\Users\lost\.gradle\caches\8.11\transforms\404a14225dfd64c5ded500cfbbd4b05e\transformed\jetified-ads-adservices-1.0.0-beta05\AndroidManifest.xml:23:9-25:40
+189            android:name="android.ext.adservices"
+189-->[androidx.privacysandbox.ads:ads-adservices:1.0.0-beta05] C:\Users\lost\.gradle\caches\8.11\transforms\404a14225dfd64c5ded500cfbbd4b05e\transformed\jetified-ads-adservices-1.0.0-beta05\AndroidManifest.xml:24:13-50
+190            android:required="false" />
+190-->[androidx.privacysandbox.ads:ads-adservices:1.0.0-beta05] C:\Users\lost\.gradle\caches\8.11\transforms\404a14225dfd64c5ded500cfbbd4b05e\transformed\jetified-ads-adservices-1.0.0-beta05\AndroidManifest.xml:25:13-37
+191
+192        <provider
+192-->[androidx.emoji2:emoji2:1.3.0] C:\Users\lost\.gradle\caches\8.11\transforms\47934c332db50b14e993fe30221b742e\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+193            android:name="androidx.startup.InitializationProvider"
+193-->[androidx.emoji2:emoji2:1.3.0] C:\Users\lost\.gradle\caches\8.11\transforms\47934c332db50b14e993fe30221b742e\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:25:13-67
+194            android:authorities="com.example.lifemaxx.androidx-startup"
+194-->[androidx.emoji2:emoji2:1.3.0] C:\Users\lost\.gradle\caches\8.11\transforms\47934c332db50b14e993fe30221b742e\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:26:13-68
+195            android:exported="false" >
+195-->[androidx.emoji2:emoji2:1.3.0] C:\Users\lost\.gradle\caches\8.11\transforms\47934c332db50b14e993fe30221b742e\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:27:13-37
+196            <meta-data
+196-->[androidx.emoji2:emoji2:1.3.0] C:\Users\lost\.gradle\caches\8.11\transforms\47934c332db50b14e993fe30221b742e\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+197                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+197-->[androidx.emoji2:emoji2:1.3.0] C:\Users\lost\.gradle\caches\8.11\transforms\47934c332db50b14e993fe30221b742e\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:30:17-75
+198                android:value="androidx.startup" />
+198-->[androidx.emoji2:emoji2:1.3.0] C:\Users\lost\.gradle\caches\8.11\transforms\47934c332db50b14e993fe30221b742e\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:31:17-49
+199            <meta-data
+199-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\lost\.gradle\caches\8.11\transforms\5cdac4a9448bad90a372eb8954cdb258\transformed\jetified-lifecycle-process-2.6.2\AndroidManifest.xml:29:13-31:52
+200                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+200-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\lost\.gradle\caches\8.11\transforms\5cdac4a9448bad90a372eb8954cdb258\transformed\jetified-lifecycle-process-2.6.2\AndroidManifest.xml:30:17-78
+201                android:value="androidx.startup" />
+201-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\lost\.gradle\caches\8.11\transforms\5cdac4a9448bad90a372eb8954cdb258\transformed\jetified-lifecycle-process-2.6.2\AndroidManifest.xml:31:17-49
+202            <meta-data
+202-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:29:13-31:52
+203                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+203-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:30:17-85
+204                android:value="androidx.startup" />
+204-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:31:17-49
+205        </provider>
+206
+207        <receiver
+207-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:34:9-52:20
+208            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+208-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:35:13-76
+209            android:directBootAware="false"
+209-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:36:13-44
+210            android:enabled="true"
+210-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:37:13-35
+211            android:exported="true"
+211-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:38:13-36
+212            android:permission="android.permission.DUMP" >
+212-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:39:13-57
+213            <intent-filter>
+213-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:40:13-42:29
+214                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+214-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:41:17-91
+214-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:41:25-88
+215            </intent-filter>
+216            <intent-filter>
+216-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:43:13-45:29
+217                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+217-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:44:17-85
+217-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:44:25-82
+218            </intent-filter>
+219            <intent-filter>
+219-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:46:13-48:29
+220                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+220-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:47:17-88
+220-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:47:25-85
+221            </intent-filter>
+222            <intent-filter>
+222-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:49:13-51:29
+223                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+223-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:50:17-95
+223-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\lost\.gradle\caches\8.11\transforms\7f49cf2ca8ff0a32f0f8d80a3351159a\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:50:25-92
+224            </intent-filter>
+225        </receiver> <!-- The activities will be merged into the manifest of the hosting app. -->
+226        <activity
+226-->[com.google.android.play:core-common:2.0.3] C:\Users\lost\.gradle\caches\8.11\transforms\cc8f6ed372fa17e3e9e4e30b7df6b2b9\transformed\jetified-core-common-2.0.3\AndroidManifest.xml:14:9-18:65
+227            android:name="com.google.android.play.core.common.PlayCoreDialogWrapperActivity"
+227-->[com.google.android.play:core-common:2.0.3] C:\Users\lost\.gradle\caches\8.11\transforms\cc8f6ed372fa17e3e9e4e30b7df6b2b9\transformed\jetified-core-common-2.0.3\AndroidManifest.xml:15:13-93
+228            android:exported="false"
+228-->[com.google.android.play:core-common:2.0.3] C:\Users\lost\.gradle\caches\8.11\transforms\cc8f6ed372fa17e3e9e4e30b7df6b2b9\transformed\jetified-core-common-2.0.3\AndroidManifest.xml:16:13-37
+229            android:stateNotNeeded="true"
+229-->[com.google.android.play:core-common:2.0.3] C:\Users\lost\.gradle\caches\8.11\transforms\cc8f6ed372fa17e3e9e4e30b7df6b2b9\transformed\jetified-core-common-2.0.3\AndroidManifest.xml:17:13-42
+230            android:theme="@style/Theme.PlayCore.Transparent" />
+230-->[com.google.android.play:core-common:2.0.3] C:\Users\lost\.gradle\caches\8.11\transforms\cc8f6ed372fa17e3e9e4e30b7df6b2b9\transformed\jetified-core-common-2.0.3\AndroidManifest.xml:18:13-62
+231    </application>
+232
+233</manifest>

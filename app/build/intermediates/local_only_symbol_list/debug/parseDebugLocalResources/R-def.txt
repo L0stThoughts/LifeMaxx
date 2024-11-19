@@ -1,0 +1,23 @@
+R_DEF: Internal format may change without notice
+local
+color accentColor
+color primaryColor
+color primaryDarkColor
+color white
+drawable ic_launcher
+id addSupplementButton
+id doseInput
+id nameInput
+id recyclerView
+id saveButton
+id stockInput
+id stockStatus
+id supplementName
+layout activity_add_supplement
+layout activity_main
+layout list_item_supplement
+mipmap ic_launcher
+string add_supplement
+string app_name
+string save
+style Theme.LifeMaxx

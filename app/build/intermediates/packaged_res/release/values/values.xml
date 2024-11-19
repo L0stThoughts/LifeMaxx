@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accentColor">#03DAC5</color>
+    <color name="primaryColor">#6200EE</color>
+    <color name="primaryDarkColor">#3700B3</color>
+    <color name="white">#FFFFFF</color>
+    <string name="add_supplement">Add Supplement</string>
+    <string name="app_name">Lifemaxx</string>
+    <string name="save">Save</string>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorAccent">@color/accentColor</item>
+    </style>
+</resources>
