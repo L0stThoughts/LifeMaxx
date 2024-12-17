@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace 'com.example.lifemaxx'  // Set the namespace here
     compileSdkVersion 35  // Adjust this if needed, or set it to 35
     defaultConfig {
         applicationId "com.example.lifemaxx"
@@ -12,13 +13,15 @@ android {
         versionCode 1
         versionName "1.0"
     }
-    namespace 'com.example.lifemaxx'  // Set the namespace here
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion "1.5.15" // Ensure it matches Kotlin plugin version
     }
 
     sourceSets {
@@ -30,6 +33,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8" // Set to a valid JVM target
     }
+
+    buildFeatures {
+        compose true
+    }
 }
 
 dependencies {
@@ -38,10 +45,21 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore-ktx:25.1.1'
     implementation 'com.google.firebase:firebase-auth-ktx:23.1.0'
     implementation 'com.google.firebase:firebase-analytics-ktx:22.1.2'
+    implementation "com.google.android.material:material:1.12.0"
+
+    implementation "androidx.compose.ui:ui:1.7.6"
+    implementation "androidx.compose.material:material:1.7.6"
+    implementation "androidx.compose.ui:ui-tooling-preview:1.7.6"
+    implementation 'androidx.navigation:navigation-compose:2.8.5'
+    implementation "androidx.compose.material:material-icons-extended:1.7.6"
+    implementation "androidx.core:core-ktx:1.15.0"
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
-    // other dependencies
+    implementation "androidx.work:work-runtime:2.10.0"
+
+    debugImplementation "androidx.compose.ui:ui-tooling:1.7.6"
 }
+
 
 repositories {
     google()

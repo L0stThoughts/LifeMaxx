@@ -1,31 +1,41 @@
 package com.example.lifemaxx.ui
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.lifemaxx.R
-import com.example.lifemaxx.repository.SupplementRepository
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.material.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
-class MainActivity : AppCompatActivity() {
-    private val repository = SupplementRepository()
-
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
-        // Fetch supplements
-        repository.getSupplements("USER_ID") { supplements ->
-            recyclerView.adapter = SupplementsAdapter(supplements)
-        }
-
-        findViewById<View>(R.id.addSupplementButton).setOnClickListener {
-            startActivity(Intent(this, AddSupplementActivity::class.java))
+        setContent {
+            LifeMaxxApp()
         }
     }
+}
+
+@Composable
+fun LifeMaxxApp() {
+    // Initialize the NavController
+    val navController = rememberNavController()
+
+    // Scaffold with the navigation graph
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("LifeMaxx") })
+        }
+    ) { innerPadding ->
+        // Pass the NavController to NavGraph
+        NavGraph(navController = navController, paddingValues = innerPadding)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    LifeMaxxApp()
 }

@@ -1,25 +1,46 @@
 package com.example.lifemaxx.repository
 
-import com.example.lifemaxx.models.Supplement
+import com.example.lifemaxx.model.Supplement
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 class SupplementRepository {
     private val db = FirebaseFirestore.getInstance()
+    private val supplementCollection = db.collection("supplements")
 
-    fun addSupplement(userId: String, supplement: Supplement) {
-        db.collection("users").document(userId)
-            .collection("supplements")
-            .document(supplement.id)
-            .set(supplement)
+    suspend fun addSupplement(supplement: Supplement): Boolean {
+        return try {
+            supplementCollection.add(supplement).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
-    fun getSupplements(userId: String, callback: (List<Supplement>) -> Unit) {
-        db.collection("users").document(userId)
-            .collection("supplements")
-            .get()
-            .addOnSuccessListener { result ->
-                val supplements = result.toObjects(Supplement::class.java)
-                callback(supplements)
-            }
+    suspend fun getSupplements(): List<Supplement> {
+        return try {
+            val snapshot = supplementCollection.get().await()
+            snapshot.toObjects(Supplement::class.java)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun updateSupplement(supplementId: String, updatedData: Map<String, Any>): Boolean {
+        return try {
+            supplementCollection.document(supplementId).update(updatedData).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    suspend fun deleteSupplement(supplementId: String): Boolean {
+        return try {
+            supplementCollection.document(supplementId).delete().await()
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }

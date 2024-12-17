@@ -1,7 +1,15 @@
 <resources>
-    <style name="Theme.LifeMaxx" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/primaryColor</item>
-        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
-        <item name="colorAccent">@color/accentColor</item>
+    <!-- Base Application Theme -->
+    <style name="Theme.LifeMaxx" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary colors -->
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+
+        <!-- Status Bar Color -->
+        <item name="android:statusBarColor">@color/purple_700</item>
+
+        <!-- Window Background -->
+        <item name="android:windowBackground">@color/white</item>
     </style>
 </resources>

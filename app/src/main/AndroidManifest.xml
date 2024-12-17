@@ -2,7 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.lifemaxx">
 
-    <uses-sdk android:minSdkVersion="23" />
+    <!-- Notification permissions for Android 13+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        tools:ignore="ProtectedPermissions" />
+
 
     <application
         android:allowBackup="true"
@@ -19,6 +23,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Reminder Receiver -->
+        <receiver
+            android:name="com.example.lifemaxx.ui.ReminderReceiver"
+            android:exported="true"
+            android:permission="com.example.lifemaxx.permission.SEND_REMINDER" />
+
 
     </application>
 </manifest>

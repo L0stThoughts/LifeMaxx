@@ -1,26 +1,50 @@
 [
     {
-        "merged": "C:\\Users\\lost\\.gradle\\daemon\\8.9\\com.example.lifemaxx.app-debug-4:\\layout_list_item_supplement.xml.flat",
-        "source": "C:\\Users\\lost\\.gradle\\daemon\\8.9\\com.example.lifemaxx.app-main-6:\\layout\\list_item_supplement.xml"
-    },
-    {
-        "merged": "C:\\Users\\lost\\.gradle\\daemon\\8.9\\com.example.lifemaxx.app-debug-4:\\layout_activity_main.xml.flat",
-        "source": "C:\\Users\\lost\\.gradle\\daemon\\8.9\\com.example.lifemaxx.app-main-6:\\layout\\activity_main.xml"
-    },
-    {
-        "merged": "C:\\Users\\lost\\.gradle\\daemon\\8.9\\com.example.lifemaxx.app-debug-4:\\mipmap_ic_launcher.png.flat",
-        "source": "C:\\Users\\lost\\.gradle\\daemon\\8.9\\com.example.lifemaxx.app-main-6:\\mipmap\\ic_launcher.png"
-    },
-    {
         "merged": "com.example.lifemaxx.app-debug-4:/drawable_ic_launcher.xml.flat",
         "source": "com.example.lifemaxx.app-main-6:/drawable/ic_launcher.xml"
     },
     {
-        "merged": "C:\\Users\\lost\\.gradle\\daemon\\8.9\\com.example.lifemaxx.app-debug-4:\\layout_activity_add_supplement.xml.flat",
-        "source": "C:\\Users\\lost\\.gradle\\daemon\\8.9\\com.example.lifemaxx.app-main-6:\\layout\\activity_add_supplement.xml"
+        "merged": "com.example.lifemaxx.app-debug-4:/drawable-xhdpi_ic_notification.png.flat",
+        "source": "com.example.lifemaxx.app-main-6:/drawable-xhdpi/ic_notification.png"
     },
     {
-        "merged": "C:\\Users\\lost\\.gradle\\daemon\\8.9\\com.example.lifemaxx.app-debug-4:\\drawable_ic_launcher_alias.xml.flat",
-        "source": "C:\\Users\\lost\\.gradle\\daemon\\8.9\\com.example.lifemaxx.app-main-6:\\drawable\\ic_launcher_alias.xml"
+        "merged": "com.example.lifemaxx.app-debug-4:/mipmap_ic_launcher.png.flat",
+        "source": "com.example.lifemaxx.app-main-6:/mipmap/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.lifemaxx.app-debug-4:/drawable-hdpi_ic_notification.png.flat",
+        "source": "com.example.lifemaxx.app-main-6:/drawable-hdpi/ic_notification.png"
+    },
+    {
+        "merged": "com.example.lifemaxx.app-debug-4:/layout_activity_home.xml.flat",
+        "source": "com.example.lifemaxx.app-main-6:/layout/activity_home.xml"
+    },
+    {
+        "merged": "com.example.lifemaxx.app-debug-4:/drawable-mdpi_ic_notification.png.flat",
+        "source": "com.example.lifemaxx.app-main-6:/drawable-mdpi/ic_notification.png"
+    },
+    {
+        "merged": "com.example.lifemaxx.app-debug-4:/layout_activity_medical_study_finder.xml.flat",
+        "source": "com.example.lifemaxx.app-main-6:/layout/activity_medical_study_finder.xml"
+    },
+    {
+        "merged": "com.example.lifemaxx.app-debug-4:/layout_activity_dose_tracker.xml.flat",
+        "source": "com.example.lifemaxx.app-main-6:/layout/activity_dose_tracker.xml"
+    },
+    {
+        "merged": "com.example.lifemaxx.app-debug-4:/drawable-xxhdpi_ic_notification.png.flat",
+        "source": "com.example.lifemaxx.app-main-6:/drawable-xxhdpi/ic_notification.png"
+    },
+    {
+        "merged": "com.example.lifemaxx.app-debug-4:/drawable-anydpi-v24_ic_notification.xml.flat",
+        "source": "com.example.lifemaxx.app-main-6:/drawable-anydpi-v24/ic_notification.xml"
+    },
+    {
+        "merged": "com.example.lifemaxx.app-debug-4:/layout_activity_supplement_tracking.xml.flat",
+        "source": "com.example.lifemaxx.app-main-6:/layout/activity_supplement_tracking.xml"
+    },
+    {
+        "merged": "com.example.lifemaxx.app-debug-4:/layout_activity_settings.xml.flat",
+        "source": "com.example.lifemaxx.app-main-6:/layout/activity_settings.xml"
     }
 ]

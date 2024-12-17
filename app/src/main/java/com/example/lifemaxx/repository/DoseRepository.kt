@@ -1,25 +1,37 @@
 package com.example.lifemaxx.repository
 
-import com.example.lifemaxx.models.Dose
+import com.example.lifemaxx.model.Dose
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 class DoseRepository {
     private val db = FirebaseFirestore.getInstance()
+    private val doseCollection = db.collection("doses")
 
-    fun addDose(userId: String, dose: Dose) {
-        db.collection("users").document(userId)
-            .collection("doses")
-            .document(dose.date)
-            .set(dose)
+    suspend fun addDose(dose: Dose): Boolean {
+        return try {
+            doseCollection.add(dose).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
-    fun getDoses(userId: String, callback: (List<Dose>) -> Unit) {
-        db.collection("users").document(userId)
-            .collection("doses")
-            .get()
-            .addOnSuccessListener { result ->
-                val doses = result.toObjects(Dose::class.java)
-                callback(doses)
-            }
+    suspend fun getDosesByDate(date: String): List<Dose> {
+        return try {
+            val snapshot = doseCollection.whereEqualTo("date", date).get().await()
+            snapshot.toObjects(Dose::class.java)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun updateDose(doseId: String, updatedData: Map<String, Any>): Boolean {
+        return try {
+            doseCollection.document(doseId).update(updatedData).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
