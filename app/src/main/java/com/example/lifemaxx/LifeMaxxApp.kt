@@ -30,5 +30,5 @@ val appModule = module {
     factory { MedicalStudyFinderViewModel(get()) }      // gets MedicalStudyRepository
     factory { SupplementViewModel(get()) }              // gets SupplementRepository
     factory { SettingsViewModel(get()) }                // gets UserRepository
-    factory { ReminderViewModel() }                     // doesn't need a repo
+    factory { RemindersViewModel() }                     // doesn't need a repo
 }

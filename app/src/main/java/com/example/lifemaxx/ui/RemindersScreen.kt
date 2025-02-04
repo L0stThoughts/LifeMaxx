@@ -40,6 +40,8 @@ fun RemindersScreen(navController: NavController) {
             .padding(innerPadding)
             .fillMaxSize()
         ) {
+            val context = LocalContext.current
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
@@ -49,14 +51,12 @@ fun RemindersScreen(navController: NavController) {
                     ReminderItem(
                         reminder = reminder,
                         onToggle = { newEnabled ->
-                            val context = LocalContext.current
                             viewModel.toggleReminder(context, reminder.id, newEnabled)
                         },
                         onClick = {
                             editingReminder = reminder
                         },
                         onDelete = {
-                            val context = LocalContext.current
                             viewModel.deleteReminder(context, reminder.id)
                         }
                     )
@@ -120,9 +120,9 @@ fun RemindersScreen(navController: NavController) {
 @Composable
 fun ReminderItem(
     reminder: Reminder,
-    onToggle: @Composable (Boolean) -> Unit,
+    onToggle: (Boolean) -> Unit,
     onClick: () -> Unit,
-    onDelete: @Composable () -> Unit
+    onDelete: () -> Unit
 ) {
     ElevatedCard(
         modifier = Modifier
@@ -154,7 +154,7 @@ fun ReminderItem(
 
 @Composable
 fun formatTime(timeInMillis: Long): String {
-    val cal = Calendar.getInstance().apply { timeInMillis = timeInMillis }
+    val cal = Calendar.getInstance().apply { setTimeInMillis(timeInMillis) }
     val h = cal.get(Calendar.HOUR_OF_DAY)
     val m = cal.get(Calendar.MINUTE)
     return String.format("%02d:%02d", h, m)
