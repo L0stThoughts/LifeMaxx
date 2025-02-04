@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.lifemaxx.app-mergeDebugResources-2:/values-night-v8/values-night-v8.xml",
+            "outputFile": "com.example.lifemaxx.app-mergeDebugResources-3:/values-night-v8/values-night-v8.xml",
             "map": [
                 {
                     "source": "C:\\Users\\lost\\.gradle\\caches\\8.9\\transforms\\d628158579eef38f0d6dd4edd4641e17\\transformed\\material-1.12.0\\res\\values-night-v8\\values-night-v8.xml",

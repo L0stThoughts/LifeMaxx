@@ -13,5 +13,12 @@ layout activity_supplement_tracking
 mipmap ic_launcher
 string add_supplement
 string app_name
+string default_web_client_id
+string gcm_defaultSenderId
+string google_api_key
+string google_app_id
+string google_crash_reporting_api_key
+string google_storage_bucket
+string project_id
 string save
 style Theme.LifeMaxx

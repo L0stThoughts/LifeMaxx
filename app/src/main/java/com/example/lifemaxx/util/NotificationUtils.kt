@@ -13,9 +13,13 @@ import com.example.lifemaxx.R
 
 object NotificationUtils {
     private const val CHANNEL_ID = "lifeMaxx_channel"
-    private const val CHANNEL_NAME = "Dose Reminder"
-    private const val CHANNEL_DESCRIPTION = "Reminders for your supplements"
+    private const val CHANNEL_NAME = "Supplement Reminders"
+    private const val CHANNEL_DESCRIPTION = "Reminders for taking supplements"
 
+    /**
+     * Creates a notification channel on Android 8.0+.
+     * Call this once (e.g., in Application.onCreate()) or before scheduling reminders.
+     */
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -25,32 +29,37 @@ object NotificationUtils {
             ).apply {
                 description = CHANNEL_DESCRIPTION
             }
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+            val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(channel)
         }
     }
 
-    fun showNotification(context: Context, title: String, message: String, notificationId: Int) {
-        // Check if POST_NOTIFICATIONS permission is granted
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
+    /**
+     * Shows a notification with the given message. Also checks POST_NOTIFICATIONS permission on Android 13+.
+     */
+    fun showNotification(
+        context: Context,
+        title: String = "Reminder!",
+        message: String = "Don't forget to take your supplements today!",
+        notificationId: Int
+    ) {
+        // For Android 13+ (TIRAMISU), check runtime permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED
             ) {
-                // Log or handle permission not granted scenario
+                // Permission not granted; can't show notification
                 return
             }
         }
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification) // Ensure the drawable exists
+            .setSmallIcon(R.drawable.ic_notification) // adjust the icon resource
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
 
-        with(NotificationManagerCompat.from(context)) {
-            notify(notificationId, builder.build())
-        }
+        NotificationManagerCompat.from(context).notify(notificationId, builder.build())
     }
 }

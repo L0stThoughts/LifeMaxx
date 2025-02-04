@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.lifemaxx.app-mergeDebugResources-2:/values-watch-v20/values-watch-v20.xml",
+            "outputFile": "com.example.lifemaxx.app-mergeDebugResources-3:/values-watch-v20/values-watch-v20.xml",
             "map": [
                 {
                     "source": "C:\\Users\\lost\\.gradle\\caches\\8.9\\transforms\\b2f274928784faf16d580dbe5969119a\\transformed\\jetified-play-services-auth-20.7.0\\res\\values-watch-v20\\values.xml",

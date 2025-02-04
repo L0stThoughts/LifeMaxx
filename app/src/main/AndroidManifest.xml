@@ -4,15 +4,18 @@
 
     <!-- Notification permissions for Android 13+ -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
+    <uses-permission
+        android:name="android.permission.SCHEDULE_EXACT_ALARM"
         tools:ignore="ProtectedPermissions" />
 
-
     <application
+        android:name=".LifemaxxApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.LifeMaxx">
+        android:enableOnBackInvokedCallback="true"
+        android:theme="@style/Theme.LifeMaxx"
+        tools:ignore="UnusedAttribute">
 
         <!-- Main Activity -->
         <activity
@@ -29,7 +32,5 @@
             android:name="com.example.lifemaxx.ui.ReminderReceiver"
             android:exported="true"
             android:permission="com.example.lifemaxx.permission.SEND_REMINDER" />
-
-
     </application>
 </manifest>

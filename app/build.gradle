@@ -1,14 +1,15 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
 }
 
 android {
-    namespace 'com.example.lifemaxx'  // Set the namespace here
-    compileSdkVersion 35  // Adjust this if needed, or set it to 35
+    namespace 'com.example.lifemaxx'
+    compileSdkVersion 35
     defaultConfig {
         applicationId "com.example.lifemaxx"
-        minSdkVersion 23  // This should match the minSdkVersion requirement from Firebase
+        minSdkVersion 23
         targetSdkVersion 35
         versionCode 1
         versionName "1.0"
@@ -20,18 +21,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     composeOptions {
-        kotlinCompilerExtensionVersion "1.5.15" // Ensure it matches Kotlin plugin version
+        kotlinCompilerExtensionVersion "1.5.15"
     }
 
     sourceSets {
         main {
-            manifest.srcFile 'src/main/AndroidManifest.xml'  // Ensure this path is correct
+            manifest.srcFile 'src/main/AndroidManifest.xml'
         }
     }
 
     kotlinOptions {
-        jvmTarget = "1.8" // Set to a valid JVM target
+        jvmTarget = "1.8"
     }
 
     buildFeatures {
@@ -40,26 +42,50 @@ android {
 }
 
 dependencies {
+    // --- Core Android dependencies ---
     implementation 'androidx.core:core-ktx:1.15.0'
     implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation "com.google.android.material:material:1.12.0"
+
+    // --- Firebase ---
     implementation 'com.google.firebase:firebase-firestore-ktx:25.1.1'
     implementation 'com.google.firebase:firebase-auth-ktx:23.1.0'
     implementation 'com.google.firebase:firebase-analytics-ktx:22.1.2'
-    implementation "com.google.android.material:material:1.12.0"
 
+    // --- Compose ---
     implementation "androidx.compose.ui:ui:1.7.6"
     implementation "androidx.compose.material:material:1.7.6"
     implementation "androidx.compose.ui:ui-tooling-preview:1.7.6"
-    implementation 'androidx.navigation:navigation-compose:2.8.5'
     implementation "androidx.compose.material:material-icons-extended:1.7.6"
-    implementation "androidx.core:core-ktx:1.15.0"
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    implementation "androidx.compose.material3:material3:1.3.1"
+    debugImplementation "androidx.compose.ui:ui-tooling:1.7.6"
+
+    // --- Navigation ---
+    implementation 'androidx.navigation:navigation-compose:2.8.5'
+
+    // --- WorkManager (optional if used for background tasks) ---
     implementation "androidx.work:work-runtime:2.10.0"
 
-    debugImplementation "androidx.compose.ui:ui-tooling:1.7.6"
-}
+    // --- RecyclerView / ConstraintLayout (if you need them) ---
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
 
+    // ------------------ Koin Dependencies ------------------
+    // Koin Core
+    implementation "io.insert-koin:koin-core:3.4.0"
+
+    // Koin Android (lifecycle, context, etc.)
+    implementation "io.insert-koin:koin-android:3.4.0"
+
+    // Koin for Jetpack Compose
+    implementation "io.insert-koin:koin-androidx-compose:3.4.0"
+
+    // (Optional) Koin for WorkManager
+    // implementation "io.insert-koin:koin-androidx-workmanager:3.4.0"
+
+    // (Optional) Koin for Navigation (if you need it)
+    // implementation "io.insert-koin:koin-androidx-navigation:3.4.0"
+}
 
 repositories {
     google()

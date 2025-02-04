@@ -5,6 +5,13 @@
     <color name="white">#FFFFFF</color>
     <string name="add_supplement">Add Supplement</string>
     <string name="app_name">Lifemaxx</string>
+    <string name="default_web_client_id" translatable="false">705317926236-7bnvhci2cfhm6nlmifhe7kbeljtjm5ge.apps.googleusercontent.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">705317926236</string>
+    <string name="google_api_key" translatable="false">AIzaSyBwbHedW8MJN38ZI9o7uyZGfHPuT1By2-0</string>
+    <string name="google_app_id" translatable="false">1:705317926236:android:527c3b4f9276922051bd99</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBwbHedW8MJN38ZI9o7uyZGfHPuT1By2-0</string>
+    <string name="google_storage_bucket" translatable="false">lifemaxx-eac71.firebasestorage.app</string>
+    <string name="project_id" translatable="false">lifemaxx-eac71</string>
     <string name="save">Save</string>
     <style name="Theme.LifeMaxx" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         

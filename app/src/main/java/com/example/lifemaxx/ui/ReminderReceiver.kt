@@ -7,13 +7,20 @@ import com.example.lifemaxx.util.NotificationUtils
 
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (context != null) {
-            NotificationUtils.showNotification(
-                context,
-                title = "Reminder!",
-                message = "It's time to take your supplement.",
-                notificationId = 1
-            )
-        }
+        context ?: return
+
+        val customMessage = intent?.getStringExtra("NOTIF_MESSAGE")
+            ?: "Don't forget to take your supplements today!"
+
+        val notifId = intent?.getIntExtra("NOTIF_ID", 0) ?: 0
+        val notifTitle = "Reminder!"
+
+        // Show the notification
+        NotificationUtils.showNotification(
+            context = context,
+            title = notifTitle,
+            message = customMessage,
+            notificationId = notifId
+        )
     }
 }
