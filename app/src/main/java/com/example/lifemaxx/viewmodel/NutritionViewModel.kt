@@ -6,16 +6,19 @@ import androidx.lifecycle.viewModelScope
 import com.example.lifemaxx.model.NutritionEntry
 import com.example.lifemaxx.repository.NutritionRepository
 import com.example.lifemaxx.util.DateUtils
+import com.example.lifemaxx.util.FirebaseUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 
 /**
- * ViewModel for the nutrition tracker feature.
+ * ViewModel for the nutrition tracker feature with complete functionality.
  */
 class NutritionViewModel(
-    private val repository: NutritionRepository = NutritionRepository()
+    private val repository: NutritionRepository = NutritionRepository(
+        context = TODO()
+    )
 ) : ViewModel() {
     private val TAG = "NutritionViewModel"
 
@@ -34,6 +37,10 @@ class NutritionViewModel(
     // Status messages
     private val _statusMessage = MutableStateFlow<String?>(null)
     val statusMessage: StateFlow<String?> get() = _statusMessage
+
+    // Loading state
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> get() = _isLoading
 
     // Hard-coded user ID for now - in a real app, this would come from authentication
     private val currentUserId = "user123"
@@ -88,6 +95,7 @@ class NutritionViewModel(
      */
     private fun loadEntriesForCurrentDate() {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val entries = repository.getNutritionEntriesByDate(
                     userId = currentUserId,
@@ -99,6 +107,8 @@ class NutritionViewModel(
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading entries: ${e.message}", e)
                 _statusMessage.value = "Failed to load nutrition entries"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -134,6 +144,7 @@ class NutritionViewModel(
      */
     fun addNutritionEntry(entry: NutritionEntry) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 // Create a complete entry with user ID and date
                 val completeEntry = entry.copy(
@@ -151,6 +162,8 @@ class NutritionViewModel(
             } catch (e: Exception) {
                 Log.e(TAG, "Error adding entry: ${e.message}", e)
                 _statusMessage.value = "Error: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -169,6 +182,7 @@ class NutritionViewModel(
         mealType: String
     ) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val updatedData = mapOf(
                     "foodName" to foodName,
@@ -190,6 +204,8 @@ class NutritionViewModel(
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating entry: ${e.message}", e)
                 _statusMessage.value = "Error: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -199,6 +215,7 @@ class NutritionViewModel(
      */
     fun deleteNutritionEntry(entryId: String) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val success = repository.deleteNutritionEntry(entryId)
                 if (success) {
@@ -210,6 +227,8 @@ class NutritionViewModel(
             } catch (e: Exception) {
                 Log.e(TAG, "Error deleting entry: ${e.message}", e)
                 _statusMessage.value = "Error: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }

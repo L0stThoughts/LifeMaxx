@@ -17,10 +17,10 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 /**
- * ViewModel for water intake tracking functionality.
+ * ViewModel for water intake tracking functionality with complete methods.
  */
 class WaterIntakeViewModel(
-    private val repository: WaterIntakeRepository
+    private val repository: WaterIntakeRepository = WaterIntakeRepository()
 ) : ViewModel() {
     private val TAG = "WaterIntakeViewModel"
 
@@ -112,9 +112,11 @@ class WaterIntakeViewModel(
     private fun fetchWeeklyTotals() {
         viewModelScope.launch {
             try {
-                val totals = repository.getWeeklyWaterIntakeTotals(currentUserId)
-                _weeklyTotals.value = totals
-                Log.d(TAG, "Fetched weekly totals: $totals")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val totals = repository.getWeeklyWaterIntakeTotals(currentUserId)
+                    _weeklyTotals.value = totals
+                    Log.d(TAG, "Fetched weekly totals: $totals")
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching weekly totals: ${e.message}", e)
             }

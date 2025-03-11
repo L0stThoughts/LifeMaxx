@@ -5,7 +5,7 @@
 5    android:versionName="3.5.0" >
 6
 7    <uses-sdk
-8        android:minSdkVersion="23"
+8        android:minSdkVersion="26"
 9        android:targetSdkVersion="35" />
 10
 11    <!-- Notification permissions for Android 13+ -->

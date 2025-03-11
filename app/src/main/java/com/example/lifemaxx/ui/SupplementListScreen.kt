@@ -1,6 +1,5 @@
 package com.example.lifemaxx.ui
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,39 +10,31 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.lifemaxx.model.Supplement
+import com.example.lifemaxx.util.FirebaseUtils
 import com.example.lifemaxx.viewmodel.SupplementViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import org.koin.java.KoinJavaComponent.getKoin
 
 /**
- * Shows a list of all supplements plus a "plus" FAB in the bottom-left.
+ * Shows a list of all supplements plus a "plus" FAB in the bottom-right.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SupplementListScreen() {
-    val TAG = "SupplementListScreen"
+fun SupplementListScreen(navController: NavController) {
+    val context = LocalContext.current
 
-    // Use a try-catch to handle any initialization issues
-    val viewModel: SupplementViewModel? = remember {
-        try {
-            getKoin().get<SupplementViewModel>()
-        } catch (e: Exception) {
-            Log.e("SupplementListScreen", "Error getting ViewModel: ${e.message}", e)
-            null
-        }
+    // Initialize Firebase first
+    LaunchedEffect(Unit) {
+        FirebaseUtils.initializeFirebase(context)
     }
 
-    // If viewModel is null, we'll show an error state
-    if (viewModel == null) {
-        ErrorScreen(
-            message = "Failed to initialize supplements. Please restart the app or check your connection."
-        )
-        return
-    }
+    val viewModel: SupplementViewModel = koinViewModel()
+    val scope = rememberCoroutineScope()
 
     // State collections
     val supplements by viewModel.supplements.collectAsState()
@@ -54,9 +45,10 @@ fun SupplementListScreen() {
     // UI state
     var showAddDialog by remember { mutableStateOf(false) }
     var editingSupplement by remember { mutableStateOf<Supplement?>(null) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var supplementToDelete by remember { mutableStateOf<String?>(null) }
 
     // Snackbar
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Show error messages in snackbar
@@ -166,16 +158,8 @@ fun SupplementListScreen() {
                         SupplementItem(
                             supplement = supplement,
                             onDelete = {
-                                scope.launch {
-                                    val result = snackbarHostState.showSnackbar(
-                                        message = "Delete ${supplement.name}?",
-                                        actionLabel = "Confirm",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                    if (result == SnackbarResult.ActionPerformed) {
-                                        viewModel.deleteSupplement(supplement.id)
-                                    }
-                                }
+                                supplementToDelete = supplement.id
+                                showDeleteDialog = true
                             },
                             onClick = {
                                 editingSupplement = supplement
@@ -198,7 +182,9 @@ fun SupplementListScreen() {
                     measureUnit = measureUnit,
                     remainingQuantity = remaining
                 )
-                viewModel.addSupplement(newSupplement)
+                scope.launch {
+                    viewModel.addSupplement(newSupplement)
+                }
                 showAddDialog = false
             }
         )
@@ -210,14 +196,56 @@ fun SupplementListScreen() {
             oldSupplement = supplement,
             onDismiss = { editingSupplement = null },
             onConfirm = { name, dose, measureUnit, remaining ->
-                viewModel.updateSupplement(
-                    supplementId = supplement.id,
-                    name = name,
-                    dailyDose = dose,
-                    measureUnit = measureUnit,
-                    remaining = remaining
-                )
+                scope.launch {
+                    viewModel.updateSupplement(
+                        supplementId = supplement.id,
+                        name = name,
+                        dailyDose = dose,
+                        measureUnit = measureUnit,
+                        remaining = remaining
+                    )
+                }
                 editingSupplement = null
+            }
+        )
+    }
+
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteDialog = false
+                supplementToDelete = null
+            },
+            title = { Text("Delete Supplement") },
+            text = { Text("Are you sure you want to delete this supplement? This action cannot be undone.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        supplementToDelete?.let { id ->
+                            scope.launch {
+                                viewModel.deleteSupplement(id)
+                            }
+                        }
+                        showDeleteDialog = false
+                        supplementToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        supplementToDelete = null
+                    }
+                ) {
+                    Text("Cancel")
+                }
             }
         )
     }

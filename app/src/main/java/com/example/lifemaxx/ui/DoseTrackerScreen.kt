@@ -10,39 +10,33 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.lifemaxx.model.Supplement
+import com.example.lifemaxx.util.FirebaseUtils
 import com.example.lifemaxx.viewmodel.DoseTrackerViewModel
-import com.example.lifemaxx.viewmodel.SupplementViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import org.koin.java.KoinJavaComponent.getKoin
 
-
+/**
+ * Shows a list of today's supplements and lets the user mark them
+ * as taken or untaken with switches.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DoseTrackerScreen(navController: NavController) {
     val TAG = "DoseTrackerScreen"
+    val context = LocalContext.current
 
-    // Use a try-catch to handle any initialization issues
-    val viewModel: DoseTrackerViewModel? = remember {
-        try {
-            getKoin().get<DoseTrackerViewModel>()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error initializing ViewModel: ${e.message}", e)
-            null
-        }
+    // Initialize Firebase first
+    LaunchedEffect(Unit) {
+        FirebaseUtils.initializeFirebase(context)
     }
 
-    // If viewModel is null, we'll show an error state
-    if (viewModel == null) {
-        ErrorScreen(
-            message = "Failed to initialize dose tracker. Please restart the app or check your connection."
-        )
-        return
-    }
+    val viewModel: DoseTrackerViewModel = koinViewModel()
+    val scope = rememberCoroutineScope()
 
     // State collections
     val supplements by viewModel.supplements.collectAsState()
@@ -54,7 +48,6 @@ fun DoseTrackerScreen(navController: NavController) {
     val takenCount = supplements.count { it.isTaken }
 
     // Snackbar
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Show error messages in snackbar
@@ -133,7 +126,11 @@ fun DoseTrackerScreen(navController: NavController) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Button(
-                                onClick = { viewModel.updateAllSupplementsTaken(true) },
+                                onClick = {
+                                    scope.launch {
+                                        viewModel.updateAllSupplementsTaken(true)
+                                    }
+                                },
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Icon(Icons.Default.CheckCircle, contentDescription = null)
@@ -142,7 +139,11 @@ fun DoseTrackerScreen(navController: NavController) {
                             }
 
                             OutlinedButton(
-                                onClick = { viewModel.updateAllSupplementsTaken(false) },
+                                onClick = {
+                                    scope.launch {
+                                        viewModel.updateAllSupplementsTaken(false)
+                                    }
+                                },
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text("Mark All Untaken")
@@ -208,7 +209,9 @@ fun DoseTrackerScreen(navController: NavController) {
                                 SupplementDoseItem(
                                     supplement = supplement,
                                     onTakenChange = { newVal ->
-                                        viewModel.updateSupplementTaken(supplement.id, newVal)
+                                        scope.launch {
+                                            viewModel.updateSupplementTaken(supplement.id, newVal)
+                                        }
                                     }
                                 )
                             }

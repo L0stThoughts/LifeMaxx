@@ -18,14 +18,13 @@ fun NavGraph(navController: NavHostController, paddingValues: PaddingValues) {
         composable("settings") {
             SettingsScreen(navController)
         }
-        // Use failsafe screens instead of the original ones
+        // Use our best screens
         composable("supplementList") {
-            FailsafeSupplementScreen(navController)
+            SupplementListScreen(navController)
         }
         composable("doseTracker") {
-            FailsafeDoseTrackerScreen(navController)
+            DoseTrackerScreen(navController)
         }
-        // Regular screens for other features
         composable("reminders") {
             RemindersScreen(navController)
         }

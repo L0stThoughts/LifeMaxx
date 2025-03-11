@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lifemaxx.model.Reminder
+import com.example.lifemaxx.util.FirebaseUtils
 import com.example.lifemaxx.util.NotificationManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +25,10 @@ class RemindersViewModel : ViewModel() {
     private val _statusMessage = MutableStateFlow<String?>(null)
     val statusMessage: StateFlow<String?> get() = _statusMessage
 
+    // Loading state
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> get() = _isLoading
+
     init {
         loadReminders()
     }
@@ -33,6 +38,7 @@ class RemindersViewModel : ViewModel() {
      */
     private fun loadReminders() {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val loadedReminders = NotificationManager.loadRemindersFromFirestore()
                 _reminders.value = loadedReminders
@@ -40,6 +46,8 @@ class RemindersViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading reminders: ${e.message}", e)
                 _statusMessage.value = "Failed to load reminders"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -49,6 +57,7 @@ class RemindersViewModel : ViewModel() {
      */
     fun addReminder(reminder: Reminder, context: Context) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 // First update the UI with optimistic update
                 val updatedList = _reminders.value.toMutableList()
@@ -69,6 +78,10 @@ class RemindersViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e(TAG, "Error adding reminder: ${e.message}", e)
                 _statusMessage.value = "Error: ${e.message}"
+                // Refresh from data source since optimistic update may have failed
+                loadReminders()
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -84,6 +97,7 @@ class RemindersViewModel : ViewModel() {
         newIsEnabled: Boolean
     ) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 // First cancel the old reminder
                 NotificationManager.cancelReminder(context, id)
@@ -118,6 +132,10 @@ class RemindersViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating reminder: ${e.message}", e)
                 _statusMessage.value = "Error updating reminder: ${e.message}"
+                // Refresh from data source
+                loadReminders()
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -127,23 +145,29 @@ class RemindersViewModel : ViewModel() {
      */
     fun deleteReminder(context: Context, reminderId: Int) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
-                // Cancel the reminder first
-                val success = NotificationManager.cancelReminder(context, reminderId)
-
-                // Update UI state
+                // First, optimistically update the UI
                 val list = _reminders.value.toMutableList()
                 list.removeIf { it.id == reminderId }
                 _reminders.value = list
 
+                // Cancel the reminder in system
+                val success = NotificationManager.cancelReminder(context, reminderId)
+
                 if (success) {
                     _statusMessage.value = "Reminder deleted"
                 } else {
+                    // Even if cancellation failed, the reminder is removed from our list
                     _statusMessage.value = "Reminder deleted from list but cancellation failed"
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error deleting reminder: ${e.message}", e)
                 _statusMessage.value = "Error deleting reminder: ${e.message}"
+                // Refresh from data source
+                loadReminders()
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -153,6 +177,7 @@ class RemindersViewModel : ViewModel() {
      */
     fun toggleReminder(context: Context, reminderId: Int, newEnabled: Boolean) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 // Find the reminder
                 val list = _reminders.value.toMutableList()
@@ -185,8 +210,19 @@ class RemindersViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e(TAG, "Error toggling reminder: ${e.message}", e)
                 _statusMessage.value = "Error toggling reminder: ${e.message}"
+                // Refresh from data source
+                loadReminders()
+            } finally {
+                _isLoading.value = false
             }
         }
+    }
+
+    /**
+     * Refresh reminders from data source
+     */
+    fun refreshReminders() {
+        loadReminders()
     }
 
     /**

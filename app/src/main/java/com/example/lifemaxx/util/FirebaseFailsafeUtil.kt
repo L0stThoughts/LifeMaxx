@@ -2,8 +2,10 @@ package com.example.lifemaxx.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
-import com.example.lifemaxx.model.Supplement
+import com.example.lifemaxx.model.*
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -14,22 +16,39 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * A utility class that provides failsafe access to Firebase Firestore.
- * If Firestore operations fail, it falls back to local storage.
+ * A comprehensive utility class that provides failsafe access to Firebase Firestore.
+ * If Firestore operations fail, it falls back to local storage to ensure the app
+ * works in offline mode.
  */
 object FirebaseFailsafeUtil {
-    private const val TAG = "FirebaseSafeUtil"
+    private const val TAG = "FirebaseFailsafeUtil"
     private const val PREFS_NAME = "LifeMaxxLocalStore"
     private const val KEY_SUPPLEMENTS = "local_supplements"
+    private const val KEY_NUTRITION = "local_nutrition"
+    private const val KEY_WATER_INTAKE = "local_water_intake"
+    private const val KEY_DOSES = "local_doses"
+    private const val KEY_REMINDERS = "local_reminders"
+    private const val KEY_LAST_SYNC = "last_sync_time"
 
     private val isFirebaseInitialized = AtomicBoolean(false)
     private var firestoreInstance: FirebaseFirestore? = null
     private val gson = Gson()
 
+    // Queue to track offline operations that need to be synced
+    private data class PendingOperation(
+        val operationType: String, // "add", "update", "delete"
+        val collectionName: String,
+        val documentId: String?,
+        val data: Map<String, Any>?,
+        val timestamp: Long = System.currentTimeMillis()
+    )
+
+    private val pendingOperations = mutableListOf<PendingOperation>()
+
     /**
      * Initialize Firebase with error handling
      */
-    fun initializeFirebase(context: Context): Boolean {
+    suspend fun initializeFirebase(context: Context): Boolean {
         if (isFirebaseInitialized.get()) {
             Log.d(TAG, "Firebase already initialized")
             return true
@@ -44,18 +63,35 @@ object FirebaseFailsafeUtil {
             // Get Firestore instance and configure it
             firestoreInstance = FirebaseFirestore.getInstance().also { db ->
                 val settings = FirebaseFirestoreSettings.Builder()
-                    .setPersistenceEnabled(true)
+                    .setPersistenceEnabled(true)  // Enable offline cache
+                    .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
                     .build()
                 db.firestoreSettings = settings
             }
 
             isFirebaseInitialized.set(true)
+
+            // Attempt to sync any pending offline operations
+            syncPendingOperations(context)
+
             Log.d(TAG, "Firebase successfully initialized")
             true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to initialize Firebase: ${e.message}", e)
             false
         }
+    }
+
+    /**
+     * Check if the device has network connectivity
+     */
+    fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 
     /**
@@ -71,31 +107,157 @@ object FirebaseFailsafeUtil {
     }
 
     /**
+     * Add a pending operation to the queue for later sync
+     */
+    private fun addPendingOperation(
+        context: Context,
+        operationType: String,
+        collectionName: String,
+        documentId: String? = null,
+        data: Map<String, Any>? = null
+    ) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val pendingOps = loadPendingOperations(prefs)
+
+        val newOperation = PendingOperation(
+            operationType = operationType,
+            collectionName = collectionName,
+            documentId = documentId,
+            data = data
+        )
+
+        pendingOps.add(newOperation)
+        savePendingOperations(prefs, pendingOps)
+
+        Log.d(TAG, "Added pending $operationType operation for $collectionName")
+    }
+
+    /**
+     * Load pending operations from SharedPreferences
+     */
+    private fun loadPendingOperations(prefs: SharedPreferences): MutableList<PendingOperation> {
+        val json = prefs.getString("pending_operations", null) ?: return mutableListOf()
+
+        val type = object : TypeToken<List<PendingOperation>>() {}.type
+        return try {
+            gson.fromJson<MutableList<PendingOperation>>(json, type)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing pending operations: ${e.message}", e)
+            mutableListOf()
+        }
+    }
+
+    /**
+     * Save pending operations to SharedPreferences
+     */
+    private fun savePendingOperations(prefs: SharedPreferences, operations: List<PendingOperation>) {
+        val json = gson.toJson(operations)
+        prefs.edit().putString("pending_operations", json).apply()
+    }
+
+    /**
+     * Attempt to sync pending operations with Firestore
+     */
+    suspend fun syncPendingOperations(context: Context) {
+        if (!isNetworkAvailable(context) || !isFirebaseInitialized.get()) {
+            Log.d(TAG, "Cannot sync: Network unavailable or Firebase not initialized")
+            return
+        }
+
+        val firestore = getFirestore() ?: return
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val pendingOps = loadPendingOperations(prefs)
+
+        if (pendingOps.isEmpty()) {
+            Log.d(TAG, "No pending operations to sync")
+            return
+        }
+
+        Log.d(TAG, "Starting sync of ${pendingOps.size} pending operations")
+
+        val completedOps = mutableListOf<PendingOperation>()
+
+        for (operation in pendingOps) {
+            try {
+                val collection = firestore.collection(operation.collectionName)
+
+                when (operation.operationType) {
+                    "add" -> {
+                        if (operation.data != null) {
+                            val docRef = if (operation.documentId != null) {
+                                collection.document(operation.documentId)
+                            } else {
+                                collection.document()
+                            }
+
+                            docRef.set(operation.data).await(timeout = 5000)
+                            completedOps.add(operation)
+                        }
+                    }
+                    "update" -> {
+                        if (operation.documentId != null && operation.data != null) {
+                            collection.document(operation.documentId)
+                                .update(operation.data)
+                                .await(timeout = 5000)
+                            completedOps.add(operation)
+                        }
+                    }
+                    "delete" -> {
+                        if (operation.documentId != null) {
+                            collection.document(operation.documentId)
+                                .delete()
+                                .await(timeout = 5000)
+                            completedOps.add(operation)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error syncing operation: ${e.message}", e)
+                // Leave this operation in the pending list
+            }
+        }
+
+        // Remove completed operations from the pending list
+        pendingOps.removeAll(completedOps)
+        savePendingOperations(prefs, pendingOps)
+
+        // Update last sync time
+        prefs.edit().putLong(KEY_LAST_SYNC, System.currentTimeMillis()).apply()
+
+        Log.d(TAG, "Sync completed. ${completedOps.size} operations synced, ${pendingOps.size} pending")
+    }
+
+    /**
      * Get supplements with fallback to local storage
      */
     suspend fun getSupplementsWithFallback(context: Context): List<Supplement> {
         return withContext(Dispatchers.IO) {
             try {
+                // Try to sync pending operations if possible
+                syncPendingOperations(context)
+
                 // Try Firestore first
-                val firestore = getFirestore()
-                if (firestore != null) {
-                    try {
-                        val snapshot = firestore.collection("supplements")
-                            .get()
-                            .await(timeout = 5000)
+                if (isNetworkAvailable(context)) {
+                    val firestore = getFirestore()
+                    if (firestore != null) {
+                        try {
+                            val snapshot = firestore.collection("supplements")
+                                .get()
+                                .await(timeout = 5000)
 
-                        val supplements = snapshot.toObjects(Supplement::class.java)
+                            val supplements = snapshot.toObjects(Supplement::class.java)
 
-                        // Save to local storage as backup
-                        if (supplements.isNotEmpty()) {
-                            saveLocalSupplements(context, supplements)
+                            // Save to local storage as backup
+                            if (supplements.isNotEmpty()) {
+                                saveLocalSupplements(context, supplements)
+                            }
+
+                            Log.d(TAG, "Successfully fetched ${supplements.size} supplements from Firestore")
+                            return@withContext supplements
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Firestore fetch failed, falling back to local: ${e.message}", e)
+                            // Fall through to local storage
                         }
-
-                        Log.d(TAG, "Successfully fetched ${supplements.size} supplements from Firestore")
-                        return@withContext supplements
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Firestore fetch failed, falling back to local: ${e.message}", e)
-                        // Fall through to local storage
                     }
                 }
 
@@ -122,45 +284,73 @@ object FirebaseFailsafeUtil {
     suspend fun addSupplementWithFallback(context: Context, supplement: Supplement): Boolean {
         return withContext(Dispatchers.IO) {
             try {
-                // Try Firestore first
-                val firestore = getFirestore()
-                if (firestore != null) {
-                    try {
-                        // Create the doc in Firestore
-                        val docRef = firestore.collection("supplements").add(supplement).await(timeout = 5000)
-                        val newId = docRef.id
+                // Generate a local ID if needed
+                val supplementToAdd = if (supplement.id.isBlank()) {
+                    supplement.copy(id = "local_${System.currentTimeMillis()}")
+                } else {
+                    supplement
+                }
 
-                        // Update with the doc ID
-                        val updatedSupplement = supplement.copy(id = newId)
-                        docRef.set(updatedSupplement).await(timeout = 5000)
+                // Try Firestore first if we have connectivity
+                if (isNetworkAvailable(context)) {
+                    val firestore = getFirestore()
+                    if (firestore != null) {
+                        try {
+                            // Create the doc in Firestore
+                            val docRef = firestore.collection("supplements").add(supplementToAdd).await(timeout = 5000)
+                            val newId = docRef.id
 
-                        // Update local storage too
-                        val localSupplements = getLocalSupplements(context).toMutableList()
-                        localSupplements.add(updatedSupplement)
-                        saveLocalSupplements(context, localSupplements)
+                            // Update with the doc ID
+                            val updatedSupplement = supplementToAdd.copy(id = newId)
+                            docRef.set(updatedSupplement).await(timeout = 5000)
 
-                        Log.d(TAG, "Successfully added supplement to Firestore: $newId")
-                        return@withContext true
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Firestore add failed, falling back to local: ${e.message}", e)
-                        // Fall through to local-only storage
+                            // Update local storage too
+                            val localSupplements = getLocalSupplements(context).toMutableList()
+                            localSupplements.add(updatedSupplement)
+                            saveLocalSupplements(context, localSupplements)
+
+                            Log.d(TAG, "Successfully added supplement to Firestore: $newId")
+                            return@withContext true
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Firestore add failed, falling back to local: ${e.message}", e)
+                            // Add pending operation for future sync
+                            val data = convertSupplementToMap(supplementToAdd)
+                            addPendingOperation(context, "add", "supplements", null, data)
+                            // Fall through to local-only storage
+                        }
                     }
+                } else {
+                    // Add pending operation for future sync
+                    val data = convertSupplementToMap(supplementToAdd)
+                    addPendingOperation(context, "add", "supplements", null, data)
                 }
 
                 // Add to local storage only
-                val localId = "local_${System.currentTimeMillis()}"
-                val localSupplement = supplement.copy(id = localId)
                 val localSupplements = getLocalSupplements(context).toMutableList()
-                localSupplements.add(localSupplement)
+                localSupplements.add(supplementToAdd)
                 saveLocalSupplements(context, localSupplements)
 
-                Log.d(TAG, "Added supplement to local storage only: $localId")
+                Log.d(TAG, "Added supplement to local storage: ${supplementToAdd.id}")
                 return@withContext true
             } catch (e: Exception) {
                 Log.e(TAG, "Complete failure in addSupplementWithFallback: ${e.message}", e)
                 return@withContext false
             }
         }
+    }
+
+    /**
+     * Convert a Supplement to a Map for Firestore
+     */
+    private fun convertSupplementToMap(supplement: Supplement): Map<String, Any> {
+        return mapOf(
+            "id" to supplement.id,
+            "name" to supplement.name,
+            "dailyDose" to supplement.dailyDose,
+            "measureUnit" to supplement.measureUnit,
+            "remainingQuantity" to supplement.remainingQuantity,
+            "isTaken" to supplement.isTaken
+        )
     }
 
     /**
@@ -174,29 +364,32 @@ object FirebaseFailsafeUtil {
                     return@withContext false
                 }
 
-                // Try Firestore first
-                val firestore = getFirestore()
-                if (firestore != null && !supplementId.startsWith("local_")) {
-                    try {
-                        firestore.collection("supplements")
-                            .document(supplementId)
-                            .update(updates)
-                            .await(timeout = 5000)
+                // First update the local copy for immediate feedback
+                val success = updateLocalSupplement(context, supplementId, updates)
 
-                        // Also update local copy
-                        updateLocalSupplement(context, supplementId, updates)
+                // Try Firestore if online and not a local-only document
+                if (isNetworkAvailable(context) && !supplementId.startsWith("local_")) {
+                    val firestore = getFirestore()
+                    if (firestore != null) {
+                        try {
+                            firestore.collection("supplements")
+                                .document(supplementId)
+                                .update(updates)
+                                .await(timeout = 5000)
 
-                        Log.d(TAG, "Successfully updated supplement in Firestore: $supplementId")
-                        return@withContext true
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Firestore update failed, falling back to local: ${e.message}", e)
-                        // Fall through to local-only update
+                            Log.d(TAG, "Successfully updated supplement in Firestore: $supplementId")
+                            return@withContext true
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Firestore update failed, using local only: ${e.message}", e)
+                            // Add pending operation for future sync
+                            addPendingOperation(context, "update", "supplements", supplementId, updates)
+                        }
                     }
+                } else if (!supplementId.startsWith("local_")) {
+                    // Add pending operation for future sync
+                    addPendingOperation(context, "update", "supplements", supplementId, updates)
                 }
 
-                // Update in local storage only
-                val success = updateLocalSupplement(context, supplementId, updates)
-                Log.d(TAG, "Updated supplement in local storage only: $supplementId, success=$success")
                 return@withContext success
             } catch (e: Exception) {
                 Log.e(TAG, "Complete failure in updateSupplementWithFallback: ${e.message}", e)
@@ -216,29 +409,32 @@ object FirebaseFailsafeUtil {
                     return@withContext false
                 }
 
-                // Try Firestore first
-                val firestore = getFirestore()
-                if (firestore != null && !supplementId.startsWith("local_")) {
-                    try {
-                        firestore.collection("supplements")
-                            .document(supplementId)
-                            .delete()
-                            .await(timeout = 5000)
+                // First delete from local storage for immediate feedback
+                val success = deleteLocalSupplement(context, supplementId)
 
-                        // Also delete from local storage
-                        deleteLocalSupplement(context, supplementId)
+                // Try Firestore if online and not a local-only document
+                if (isNetworkAvailable(context) && !supplementId.startsWith("local_")) {
+                    val firestore = getFirestore()
+                    if (firestore != null) {
+                        try {
+                            firestore.collection("supplements")
+                                .document(supplementId)
+                                .delete()
+                                .await(timeout = 5000)
 
-                        Log.d(TAG, "Successfully deleted supplement from Firestore: $supplementId")
-                        return@withContext true
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Firestore delete failed, falling back to local: ${e.message}", e)
-                        // Fall through to local-only delete
+                            Log.d(TAG, "Successfully deleted supplement from Firestore: $supplementId")
+                            return@withContext true
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Firestore delete failed, using local only: ${e.message}", e)
+                            // Add pending operation for future sync
+                            addPendingOperation(context, "delete", "supplements", supplementId)
+                        }
                     }
+                } else if (!supplementId.startsWith("local_")) {
+                    // Add pending operation for future sync
+                    addPendingOperation(context, "delete", "supplements", supplementId)
                 }
 
-                // Delete from local storage only
-                val success = deleteLocalSupplement(context, supplementId)
-                Log.d(TAG, "Deleted supplement from local storage only: $supplementId, success=$success")
                 return@withContext success
             } catch (e: Exception) {
                 Log.e(TAG, "Complete failure in deleteSupplementWithFallback: ${e.message}", e)
@@ -248,7 +444,417 @@ object FirebaseFailsafeUtil {
     }
 
     /**
-     * Local storage functions
+     * Similar methods for NutritionEntry, WaterIntake, and other data types can be added here
+     */
+    suspend fun getNutritionEntriesWithFallback(context: Context, userId: String, date: String): List<NutritionEntry> {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Try to sync pending operations if possible
+                syncPendingOperations(context)
+
+                // Try Firestore first if we have connectivity
+                if (isNetworkAvailable(context)) {
+                    val firestore = getFirestore()
+                    if (firestore != null) {
+                        try {
+                            val snapshot = firestore.collection("nutritionEntries")
+                                .whereEqualTo("userId", userId)
+                                .whereEqualTo("date", date)
+                                .get()
+                                .await(timeout = 5000)
+
+                            val entries = snapshot.toObjects(NutritionEntry::class.java)
+
+                            // Save to local storage as backup
+                            saveLocalNutritionEntries(context, entries)
+
+                            Log.d(TAG, "Successfully fetched ${entries.size} nutrition entries from Firestore")
+                            return@withContext entries
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Firestore fetch failed, falling back to local: ${e.message}", e)
+                            // Fall through to local storage
+                        }
+                    }
+                }
+
+                // Fall back to local storage
+                val allEntries = getLocalNutritionEntries(context)
+                val filteredEntries = allEntries.filter {
+                    it.userId == userId && it.date == date
+                }
+
+                Log.d(TAG, "Using ${filteredEntries.size} local nutrition entries")
+                return@withContext filteredEntries
+            } catch (e: Exception) {
+                Log.e(TAG, "Complete failure in getNutritionEntriesWithFallback: ${e.message}", e)
+                return@withContext emptyList()
+            }
+        }
+    }
+
+    suspend fun addNutritionEntryWithFallback(context: Context, entry: NutritionEntry): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Generate a local ID if needed
+                val entryToAdd = if (entry.id.isBlank()) {
+                    entry.copy(id = "local_${System.currentTimeMillis()}")
+                } else {
+                    entry
+                }
+
+                // Add to local storage first
+                val localEntries = getLocalNutritionEntries(context).toMutableList()
+                localEntries.add(entryToAdd)
+                saveLocalNutritionEntries(context, localEntries)
+
+                // Try Firestore if we have connectivity
+                if (isNetworkAvailable(context)) {
+                    val firestore = getFirestore()
+                    if (firestore != null) {
+                        try {
+                            val docRef = firestore.collection("nutritionEntries").add(entryToAdd)
+                                .await(timeout = 5000)
+                            val newId = docRef.id
+
+                            // Update with the server-assigned ID
+                            val updatedEntry = entryToAdd.copy(id = newId)
+                            docRef.update("id", newId).await(timeout = 5000)
+
+                            // Update local storage with the server ID
+                            updateLocalNutritionEntry(context, entryToAdd.id, updatedEntry)
+
+                            Log.d(TAG, "Successfully added nutrition entry to Firestore: $newId")
+                            return@withContext true
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Firestore add failed, using local only: ${e.message}", e)
+                            // Add pending operation for future sync
+                            val data = convertNutritionEntryToMap(entryToAdd)
+                            addPendingOperation(context, "add", "nutritionEntries", null, data)
+                        }
+                    }
+                } else {
+                    // Add pending operation for future sync
+                    val data = convertNutritionEntryToMap(entryToAdd)
+                    addPendingOperation(context, "add", "nutritionEntries", null, data)
+                }
+
+                return@withContext true
+            } catch (e: Exception) {
+                Log.e(TAG, "Complete failure in addNutritionEntryWithFallback: ${e.message}", e)
+                return@withContext false
+            }
+        }
+    }
+
+    private fun convertNutritionEntryToMap(entry: NutritionEntry): Map<String, Any> {
+        return mapOf(
+            "id" to entry.id,
+            "userId" to entry.userId,
+            "date" to entry.date,
+            "foodName" to entry.foodName,
+            "calories" to entry.calories,
+            "proteins" to entry.proteins,
+            "carbs" to entry.carbs,
+            "fats" to entry.fats,
+            "servingSize" to entry.servingSize,
+            "mealType" to entry.mealType,
+            "timestamp" to entry.timestamp
+        )
+    }
+
+    // Water Intake methods
+    suspend fun getWaterIntakesWithFallback(context: Context, userId: String, date: String): List<WaterIntake> {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Try to sync pending operations if possible
+                syncPendingOperations(context)
+
+                // Try Firestore first if we have connectivity
+                if (isNetworkAvailable(context)) {
+                    val firestore = getFirestore()
+                    if (firestore != null) {
+                        try {
+                            val snapshot = firestore.collection("waterIntakes")
+                                .whereEqualTo("userId", userId)
+                                .whereEqualTo("date", date)
+                                .get()
+                                .await(timeout = 5000)
+
+                            val intakes = snapshot.toObjects(WaterIntake::class.java)
+
+                            // Save to local storage as backup
+                            saveLocalWaterIntakes(context, intakes)
+
+                            Log.d(TAG, "Successfully fetched ${intakes.size} water intakes from Firestore")
+                            return@withContext intakes
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Firestore fetch failed, falling back to local: ${e.message}", e)
+                            // Fall through to local storage
+                        }
+                    }
+                }
+
+                // Fall back to local storage
+                val allIntakes = getLocalWaterIntakes(context)
+                val filteredIntakes = allIntakes.filter {
+                    it.userId == userId && it.date == date
+                }
+
+                Log.d(TAG, "Using ${filteredIntakes.size} local water intakes")
+                return@withContext filteredIntakes
+            } catch (e: Exception) {
+                Log.e(TAG, "Complete failure in getWaterIntakesWithFallback: ${e.message}", e)
+                return@withContext emptyList()
+            }
+        }
+    }
+
+    suspend fun addWaterIntakeWithFallback(context: Context, intake: WaterIntake): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Generate a local ID if needed
+                val intakeToAdd = if (intake.id.isBlank()) {
+                    intake.copy(id = "local_${System.currentTimeMillis()}")
+                } else {
+                    intake
+                }
+
+                // Add to local storage first
+                val localIntakes = getLocalWaterIntakes(context).toMutableList()
+                localIntakes.add(intakeToAdd)
+                saveLocalWaterIntakes(context, localIntakes)
+
+                // Try Firestore if we have connectivity
+                if (isNetworkAvailable(context)) {
+                    val firestore = getFirestore()
+                    if (firestore != null) {
+                        try {
+                            val docRef = firestore.collection("waterIntakes").add(intakeToAdd)
+                                .await(timeout = 5000)
+                            val newId = docRef.id
+
+                            // Update with the server-assigned ID
+                            val updatedIntake = intakeToAdd.copy(id = newId)
+                            docRef.update("id", newId).await(timeout = 5000)
+
+                            // Update local storage with the server ID
+                            updateLocalWaterIntake(context, intakeToAdd.id, updatedIntake)
+
+                            Log.d(TAG, "Successfully added water intake to Firestore: $newId")
+                            return@withContext true
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Firestore add failed, using local only: ${e.message}", e)
+                            // Add pending operation for future sync
+                            val data = convertWaterIntakeToMap(intakeToAdd)
+                            addPendingOperation(context, "add", "waterIntakes", null, data)
+                        }
+                    }
+                } else {
+                    // Add pending operation for future sync
+                    val data = convertWaterIntakeToMap(intakeToAdd)
+                    addPendingOperation(context, "add", "waterIntakes", null, data)
+                }
+
+                return@withContext true
+            } catch (e: Exception) {
+                Log.e(TAG, "Complete failure in addWaterIntakeWithFallback: ${e.message}", e)
+                return@withContext false
+            }
+        }
+    }
+
+    private fun convertWaterIntakeToMap(intake: WaterIntake): Map<String, Any> {
+        return mapOf(
+            "id" to intake.id,
+            "userId" to intake.userId,
+            "date" to intake.date,
+            "amount" to intake.amount,
+            "time" to intake.time,
+            "containerType" to intake.containerType,
+            "timestamp" to intake.timestamp
+        )
+    }
+
+    /**
+     * Reminders methods
+     */
+    suspend fun getRemindersWithFallback(context: Context): List<Reminder> {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Try to sync pending operations if possible
+                syncPendingOperations(context)
+
+                // Try Firestore first if we have connectivity
+                if (isNetworkAvailable(context)) {
+                    val firestore = getFirestore()
+                    if (firestore != null) {
+                        try {
+                            val snapshot = firestore.collection("reminders")
+                                .get()
+                                .await(timeout = 5000)
+
+                            val reminders = snapshot.toObjects(Reminder::class.java)
+
+                            // Save to local storage as backup
+                            saveLocalReminders(context, reminders)
+
+                            Log.d(TAG, "Successfully fetched ${reminders.size} reminders from Firestore")
+                            return@withContext reminders
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Firestore fetch failed, falling back to local: ${e.message}", e)
+                            // Fall through to local storage
+                        }
+                    }
+                }
+
+                // Fall back to local storage
+                val reminders = getLocalReminders(context)
+
+                Log.d(TAG, "Using ${reminders.size} local reminders")
+                return@withContext reminders
+            } catch (e: Exception) {
+                Log.e(TAG, "Complete failure in getRemindersWithFallback: ${e.message}", e)
+                return@withContext emptyList()
+            }
+        }
+    }
+
+    suspend fun addReminderWithFallback(context: Context, reminder: Reminder): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Add to local storage first
+                val localReminders = getLocalReminders(context).toMutableList()
+                localReminders.add(reminder)
+                saveLocalReminders(context, localReminders)
+
+                // Try Firestore if we have connectivity
+                if (isNetworkAvailable(context)) {
+                    val firestore = getFirestore()
+                    if (firestore != null) {
+                        try {
+                            firestore.collection("reminders")
+                                .document(reminder.id.toString())
+                                .set(reminder)
+                                .await(timeout = 5000)
+
+                            Log.d(TAG, "Successfully added reminder to Firestore: ${reminder.id}")
+                            return@withContext true
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Firestore add failed, using local only: ${e.message}", e)
+                            // Add pending operation for future sync
+                            val data = convertReminderToMap(reminder)
+                            addPendingOperation(context, "add", "reminders", reminder.id.toString(), data)
+                        }
+                    }
+                } else {
+                    // Add pending operation for future sync
+                    val data = convertReminderToMap(reminder)
+                    addPendingOperation(context, "add", "reminders", reminder.id.toString(), data)
+                }
+
+                return@withContext true
+            } catch (e: Exception) {
+                Log.e(TAG, "Complete failure in addReminderWithFallback: ${e.message}", e)
+                return@withContext false
+            }
+        }
+    }
+
+    suspend fun updateReminderWithFallback(context: Context, reminder: Reminder): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Update local storage first
+                val localReminders = getLocalReminders(context).toMutableList()
+                val index = localReminders.indexOfFirst { it.id == reminder.id }
+
+                if (index != -1) {
+                    localReminders[index] = reminder
+                    saveLocalReminders(context, localReminders)
+                }
+
+                // Try Firestore if we have connectivity
+                if (isNetworkAvailable(context)) {
+                    val firestore = getFirestore()
+                    if (firestore != null) {
+                        try {
+                            firestore.collection("reminders")
+                                .document(reminder.id.toString())
+                                .set(reminder)
+                                .await(timeout = 5000)
+
+                            Log.d(TAG, "Successfully updated reminder in Firestore: ${reminder.id}")
+                            return@withContext true
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Firestore update failed, using local only: ${e.message}", e)
+                            // Add pending operation for future sync
+                            val data = convertReminderToMap(reminder)
+                            addPendingOperation(context, "update", "reminders", reminder.id.toString(), data)
+                        }
+                    }
+                } else {
+                    // Add pending operation for future sync
+                    val data = convertReminderToMap(reminder)
+                    addPendingOperation(context, "update", "reminders", reminder.id.toString(), data)
+                }
+
+                return@withContext true
+            } catch (e: Exception) {
+                Log.e(TAG, "Complete failure in updateReminderWithFallback: ${e.message}", e)
+                return@withContext false
+            }
+        }
+    }
+
+    suspend fun deleteReminderWithFallback(context: Context, reminderId: Int): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Delete from local storage first
+                val localReminders = getLocalReminders(context).toMutableList()
+                localReminders.removeIf { it.id == reminderId }
+                saveLocalReminders(context, localReminders)
+
+                // Try Firestore if we have connectivity
+                if (isNetworkAvailable(context)) {
+                    val firestore = getFirestore()
+                    if (firestore != null) {
+                        try {
+                            firestore.collection("reminders")
+                                .document(reminderId.toString())
+                                .delete()
+                                .await(timeout = 5000)
+
+                            Log.d(TAG, "Successfully deleted reminder from Firestore: $reminderId")
+                            return@withContext true
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Firestore delete failed, using local only: ${e.message}", e)
+                            // Add pending operation for future sync
+                            addPendingOperation(context, "delete", "reminders", reminderId.toString())
+                        }
+                    }
+                } else {
+                    // Add pending operation for future sync
+                    addPendingOperation(context, "delete", "reminders", reminderId.toString())
+                }
+
+                return@withContext true
+            } catch (e: Exception) {
+                Log.e(TAG, "Complete failure in deleteReminderWithFallback: ${e.message}", e)
+                return@withContext false
+            }
+        }
+    }
+
+    private fun convertReminderToMap(reminder: Reminder): Map<String, Any> {
+        return mapOf(
+            "id" to reminder.id,
+            "timeInMillis" to reminder.timeInMillis,
+            "message" to reminder.message,
+            "isEnabled" to reminder.isEnabled
+        )
+    }
+
+    /**
+     * Local storage functions for Supplements
      */
     private fun getLocalSupplements(context: Context): List<Supplement> {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -310,6 +916,92 @@ object FirebaseFailsafeUtil {
 
         saveLocalSupplements(context, supplements)
         return true
+    }
+
+    /**
+     * Local storage functions for Nutrition Entries
+     */
+    private fun getLocalNutritionEntries(context: Context): List<NutritionEntry> {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val json = prefs.getString(KEY_NUTRITION, null) ?: return emptyList()
+
+        val type = object : TypeToken<List<NutritionEntry>>() {}.type
+        return try {
+            gson.fromJson(json, type)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing local nutrition entries: ${e.message}", e)
+            emptyList()
+        }
+    }
+
+    private fun saveLocalNutritionEntries(context: Context, entries: List<NutritionEntry>) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val json = gson.toJson(entries)
+        prefs.edit().putString(KEY_NUTRITION, json).apply()
+    }
+
+    private fun updateLocalNutritionEntry(context: Context, oldId: String, newEntry: NutritionEntry) {
+        val entries = getLocalNutritionEntries(context).toMutableList()
+        val index = entries.indexOfFirst { it.id == oldId }
+
+        if (index != -1) {
+            entries[index] = newEntry
+            saveLocalNutritionEntries(context, entries)
+        }
+    }
+
+    /**
+     * Local storage functions for Water Intakes
+     */
+    private fun getLocalWaterIntakes(context: Context): List<WaterIntake> {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val json = prefs.getString(KEY_WATER_INTAKE, null) ?: return emptyList()
+
+        val type = object : TypeToken<List<WaterIntake>>() {}.type
+        return try {
+            gson.fromJson(json, type)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing local water intakes: ${e.message}", e)
+            emptyList()
+        }
+    }
+
+    private fun saveLocalWaterIntakes(context: Context, intakes: List<WaterIntake>) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val json = gson.toJson(intakes)
+        prefs.edit().putString(KEY_WATER_INTAKE, json).apply()
+    }
+
+    private fun updateLocalWaterIntake(context: Context, oldId: String, newIntake: WaterIntake) {
+        val intakes = getLocalWaterIntakes(context).toMutableList()
+        val index = intakes.indexOfFirst { it.id == oldId }
+
+        if (index != -1) {
+            intakes[index] = newIntake
+            saveLocalWaterIntakes(context, intakes)
+        }
+    }
+
+    /**
+     * Local storage functions for Reminders
+     */
+    private fun getLocalReminders(context: Context): List<Reminder> {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val json = prefs.getString(KEY_REMINDERS, null) ?: return emptyList()
+
+        val type = object : TypeToken<List<Reminder>>() {}.type
+        return try {
+            gson.fromJson(json, type)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing local reminders: ${e.message}", e)
+            emptyList()
+        }
+    }
+
+    private fun saveLocalReminders(context: Context, reminders: List<Reminder>) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val json = gson.toJson(reminders)
+        prefs.edit().putString(KEY_REMINDERS, json).apply()
     }
 
     /**

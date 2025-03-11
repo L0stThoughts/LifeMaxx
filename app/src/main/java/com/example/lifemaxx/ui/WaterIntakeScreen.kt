@@ -18,30 +18,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.lifemaxx.model.WaterIntake
+import com.example.lifemaxx.util.FirebaseUtils
 import com.example.lifemaxx.viewmodel.WaterIntakeViewModel
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WaterIntakeScreen(navController: NavController) {
+    val context = LocalContext.current
+
+    // Initialize Firebase first
+    LaunchedEffect(Unit) {
+        FirebaseUtils.initializeFirebase(context)
+    }
+
     val viewModel: WaterIntakeViewModel = koinViewModel()
+    val scope = rememberCoroutineScope()
 
     val currentDate by viewModel.currentDate.collectAsState()
     val waterIntakes by viewModel.waterIntakes.collectAsState()
     val totalWaterIntake by viewModel.totalWaterIntake.collectAsState()
     val dailyGoal by viewModel.dailyGoal.collectAsState()
-    val weeklyTotals by viewModel.weeklyTotals.collectAsState()
+    val editingWaterIntake by viewModel.editingWaterIntake.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val statusMessage by viewModel.statusMessage.collectAsState()
-    val editingWaterIntake by viewModel.editingWaterIntake.collectAsState()
 
+    // UI state
     var showCustomDialog by remember { mutableStateOf(false) }
     var showGoalDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var entryToDelete by remember { mutableStateOf<String?>(null) }
 
     // Calculate progress
     val progress = viewModel.calculateProgressPercentage()
@@ -103,7 +116,9 @@ fun WaterIntakeScreen(navController: NavController) {
                 // Quick add buttons
                 QuickAddSection(
                     onAddWater = { containerType ->
-                        viewModel.addQuickWaterIntake(containerType)
+                        scope.launch {
+                            viewModel.addQuickWaterIntake(containerType)
+                        }
                     }
                 )
 
@@ -143,11 +158,22 @@ fun WaterIntakeScreen(navController: NavController) {
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    "No water intake recorded today\nTap the buttons above to add water",
-                                    textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        imageVector = Icons.Default.WaterDrop,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(64.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    Text(
+                                        "No water intake recorded today\nTap the buttons above to add water",
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
                             }
                         } else {
                             LazyColumn {
@@ -156,8 +182,13 @@ fun WaterIntakeScreen(navController: NavController) {
                                         entry = entry,
                                         formatTime = { viewModel.formatTime(it) },
                                         formatAmount = { viewModel.formatWaterAmount(it) },
-                                        onEdit = { viewModel.editWaterIntake(entry) },
-                                        onDelete = { viewModel.deleteWaterIntake(entry.id) }
+                                        onEdit = {
+                                            viewModel.editWaterIntake(entry)
+                                        },
+                                        onDelete = {
+                                            entryToDelete = entry.id
+                                            showDeleteDialog = true
+                                        }
                                     )
                                 }
                             }
@@ -173,7 +204,9 @@ fun WaterIntakeScreen(navController: NavController) {
         AddCustomWaterIntakeDialog(
             onDismiss = { showCustomDialog = false },
             onConfirm = { amount ->
-                viewModel.addCustomWaterIntake(amount)
+                scope.launch {
+                    viewModel.addCustomWaterIntake(amount)
+                }
                 showCustomDialog = false
             }
         )
@@ -197,7 +230,49 @@ fun WaterIntakeScreen(navController: NavController) {
             entry = entry,
             onDismiss = { viewModel.cancelEditingWaterIntake() },
             onConfirm = { amount, containerType ->
-                viewModel.updateWaterIntake(entry.id, amount, containerType)
+                scope.launch {
+                    viewModel.updateWaterIntake(entry.id, amount, containerType)
+                }
+            }
+        )
+    }
+
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteDialog = false
+                entryToDelete = null
+            },
+            title = { Text("Delete Water Intake") },
+            text = { Text("Are you sure you want to delete this water intake entry?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        entryToDelete?.let { id ->
+                            scope.launch {
+                                viewModel.deleteWaterIntake(id)
+                            }
+                        }
+                        showDeleteDialog = false
+                        entryToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        entryToDelete = null
+                    }
+                ) {
+                    Text("Cancel")
+                }
             }
         )
     }
@@ -485,66 +560,6 @@ fun AddCustomWaterIntakeDialog(
 }
 
 @Composable
-fun EditWaterIntakeDialog(
-    entry: WaterIntake,
-    onDismiss: () -> Unit,
-    onConfirm: (Int, String) -> Unit
-) {
-    var amount by remember { mutableStateOf(entry.amount.toString()) }
-    var containerType by remember { mutableStateOf(entry.containerType) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Edit Water Intake") },
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedTextField(
-                    value = amount,
-                    onValueChange = { amount = it.filter { c -> c.isDigit() } },
-                    label = { Text("Amount (ml)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                // Container type selection
-                Text("Container Type")
-
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(WaterIntake.ContainerType.ALL) { type ->
-                        FilterChip(
-                            selected = containerType == type,
-                            onClick = { containerType = type },
-                            label = { Text(type) }
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    val amountValue = amount.toIntOrNull() ?: 0
-                    if (amountValue > 0) {
-                        onConfirm(amountValue, containerType)
-                    }
-                }
-            ) {
-                Text("Save")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
-@Composable
 fun SetWaterGoalDialog(
     currentGoal: Int,
     onDismiss: () -> Unit,
@@ -598,6 +613,66 @@ fun SetWaterGoalDialog(
                 }
             ) {
                 Text("Set Goal")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun EditWaterIntakeDialog(
+    entry: WaterIntake,
+    onDismiss: () -> Unit,
+    onConfirm: (Int, String) -> Unit
+) {
+    var amount by remember { mutableStateOf(entry.amount.toString()) }
+    var containerType by remember { mutableStateOf(entry.containerType) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Water Intake") },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = amount,
+                    onValueChange = { amount = it.filter { c -> c.isDigit() } },
+                    label = { Text("Amount (ml)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Container type selection
+                Text("Container Type")
+
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(WaterIntake.ContainerType.ALL) { type ->
+                        FilterChip(
+                            selected = containerType == type,
+                            onClick = { containerType = type },
+                            label = { Text(type) }
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val amountValue = amount.toIntOrNull() ?: 0
+                    if (amountValue > 0) {
+                        onConfirm(amountValue, containerType)
+                    }
+                }
+            ) {
+                Text("Save")
             }
         },
         dismissButton = {

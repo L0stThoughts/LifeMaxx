@@ -7,37 +7,49 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.lifemaxx.model.NutritionEntry
+import com.example.lifemaxx.util.FirebaseUtils
 import com.example.lifemaxx.viewmodel.NutritionViewModel
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NutritionTrackerScreen(navController: NavController) {
+    val context = LocalContext.current
+
+    // Initialize Firebase first
+    LaunchedEffect(Unit) {
+        FirebaseUtils.initializeFirebase(context)
+    }
+
     val viewModel: NutritionViewModel = koinViewModel()
     val nutritionEntries by viewModel.nutritionEntries.collectAsState()
     val currentDate by viewModel.currentDate.collectAsState()
     val dailyTotals by viewModel.dailyTotals.collectAsState()
     val statusMessage by viewModel.statusMessage.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     // Dialog states
     var showAddDialog by remember { mutableStateOf(false) }
     var editingEntry by remember { mutableStateOf<NutritionEntry?>(null) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var entryToDelete by remember { mutableStateOf<String?>(null) }
 
     // SnackBar for status messages
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     // Show snackbar when status message changes
     LaunchedEffect(statusMessage) {
@@ -83,31 +95,53 @@ fun NutritionTrackerScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // List of nutrition entries
-            if (nutritionEntries.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No food entries for this day.\nTap + to add one!",
-                        style = MaterialTheme.typography.bodyLarge
+            // List of nutrition entries or loading/empty state
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
                     )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(
-                        items = nutritionEntries,
-                        key = { it.id }
-                    ) { entry ->
-                        NutritionEntryItem(
-                            entry = entry,
-                            onEdit = { editingEntry = entry },
-                            onDelete = { viewModel.deleteNutritionEntry(entry.id) }
+                } else if (nutritionEntries.isEmpty()) {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.RestaurantMenu,
+                            contentDescription = null,
+                            modifier = Modifier.size(64.dp),
+                            tint = MaterialTheme.colorScheme.primary
                         )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = "No food entries for this day.\nTap + to add one!",
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = nutritionEntries,
+                            key = { it.id }
+                        ) { entry ->
+                            NutritionEntryItem(
+                                entry = entry,
+                                onEdit = { editingEntry = entry },
+                                onDelete = {
+                                    entryToDelete = entry.id
+                                    showDeleteDialog = true
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -119,7 +153,9 @@ fun NutritionTrackerScreen(navController: NavController) {
         AddNutritionEntryDialog(
             onDismiss = { showAddDialog = false },
             onConfirm = { entry ->
-                viewModel.addNutritionEntry(entry)
+                scope.launch {
+                    viewModel.addNutritionEntry(entry)
+                }
                 showAddDialog = false
             }
         )
@@ -131,17 +167,59 @@ fun NutritionTrackerScreen(navController: NavController) {
             entry = entry,
             onDismiss = { editingEntry = null },
             onConfirm = { updatedEntry ->
-                viewModel.updateNutritionEntry(
-                    entryId = updatedEntry.id,
-                    foodName = updatedEntry.foodName,
-                    calories = updatedEntry.calories,
-                    proteins = updatedEntry.proteins,
-                    carbs = updatedEntry.carbs,
-                    fats = updatedEntry.fats,
-                    servingSize = updatedEntry.servingSize,
-                    mealType = updatedEntry.mealType
-                )
+                scope.launch {
+                    viewModel.updateNutritionEntry(
+                        entryId = updatedEntry.id,
+                        foodName = updatedEntry.foodName,
+                        calories = updatedEntry.calories,
+                        proteins = updatedEntry.proteins,
+                        carbs = updatedEntry.carbs,
+                        fats = updatedEntry.fats,
+                        servingSize = updatedEntry.servingSize,
+                        mealType = updatedEntry.mealType
+                    )
+                }
                 editingEntry = null
+            }
+        )
+    }
+
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteDialog = false
+                entryToDelete = null
+            },
+            title = { Text("Delete Food Entry") },
+            text = { Text("Are you sure you want to delete this food entry?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        entryToDelete?.let { id ->
+                            scope.launch {
+                                viewModel.deleteNutritionEntry(id)
+                            }
+                        }
+                        showDeleteDialog = false
+                        entryToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        entryToDelete = null
+                    }
+                ) {
+                    Text("Cancel")
+                }
             }
         )
     }

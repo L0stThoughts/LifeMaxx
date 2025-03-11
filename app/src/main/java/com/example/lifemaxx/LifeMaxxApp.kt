@@ -6,9 +6,6 @@ import com.example.lifemaxx.repository.*
 import com.example.lifemaxx.viewmodel.*
 import com.example.lifemaxx.util.FirebaseUtils
 import com.example.lifemaxx.util.NotificationManager
-import com.google.firebase.FirebaseApp
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreSettings
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
@@ -18,53 +15,31 @@ class LifeMaxxApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // Initialize Firebase first, synchronously, and with proper error handling
+        // Initialize Firebase using our utility
         try {
-            if (FirebaseApp.getApps(this).isNotEmpty()) {
-                Log.d(TAG, "Firebase already initialized")
-            } else {
-                FirebaseApp.initializeApp(this)
+            val success = FirebaseUtils.initializeFirebase(this)
+            if (success) {
                 Log.d(TAG, "Firebase initialized successfully")
+            } else {
+                Log.e(TAG, "Firebase initialization returned false")
             }
-
-            // Configure Firestore settings
-            val db = FirebaseFirestore.getInstance()
-            val settings = FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true)  // Enable offline cache
-                .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
-                .build()
-            db.firestoreSettings = settings
-
-            // Initialize collections
-            ensureCollectionsExist()
-
         } catch (e: Exception) {
             Log.e(TAG, "Failed to initialize Firebase: ${e.message}", e)
         }
 
-        // Then initialize other components
-        NotificationManager.createNotificationChannel(this)
-        startKoin { modules(appModule) }
-    }
-
-    private fun ensureCollectionsExist() {
+        // Create notification channel
         try {
-            val db = FirebaseFirestore.getInstance()
-            val collections = listOf("supplements", "doses", "users", "reminderSettings")
-
-            for (collection in collections) {
-                db.collection(collection)
-                    .document("placeholder")
-                    .set(mapOf("initialized" to true))
-                    .addOnSuccessListener {
-                        Log.d(TAG, "Collection initialized: $collection")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e(TAG, "Failed to initialize collection $collection: ${e.message}")
-                    }
-            }
+            NotificationManager.createNotificationChannel(this)
         } catch (e: Exception) {
-            Log.e(TAG, "Error in ensureCollectionsExist: ${e.message}", e)
+            Log.e(TAG, "Error creating notification channel: ${e.message}", e)
+        }
+
+        // Start Koin for dependency injection
+        try {
+            startKoin { modules(appModule) }
+            Log.d(TAG, "Koin initialized successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to initialize Koin: ${e.message}", e)
         }
     }
 }
@@ -75,7 +50,7 @@ val appModule = module {
     single { DoseRepository() }
     single { SupplementRepository() }
     single { UserRepository() }
-    single { NutritionRepository() }
+    single { NutritionRepository(get()) }
     single { SleepRepository() }
     single { WaterIntakeRepository() }
     single { BarcodeRepository(get()) } // Pass SupplementRepository to BarcodeRepository
