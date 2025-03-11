@@ -228,6 +228,10 @@
     <attr format="dimension" name="height"/>
     <attr format="reference" name="hideMotionSpec"/>
     <attr format="boolean" name="hideNavigationIcon"/>
+    <attr format="enum" name="implementationMode">
+        <enum name="performance" value="0"/>
+        <enum name="compatible" value="1"/>
+    </attr>
     <attr format="boolean" name="isLightTheme"/>
     <attr format="boolean" name="isMaterial3DynamicColorApplied"/>
     <attr format="boolean" name="isMaterial3Theme"/>
@@ -508,6 +512,14 @@
     <attr format="integer" name="quantizeMotionSteps"/>
     <attr format="reference" name="recyclerViewStyle"/>
     <attr format="color" name="rippleColor"/>
+    <attr format="enum" name="scaleType">
+        <enum name="fillStart" value="0"/>
+        <enum name="fillCenter" value="1"/>
+        <enum name="fillEnd" value="2"/>
+        <enum name="fitStart" value="3"/>
+        <enum name="fitCenter" value="4"/>
+        <enum name="fitEnd" value="5"/>
+    </attr>
     <attr format="color|reference" name="scrimBackground"/>
     <attr format="boolean" name="selectionRequired"/>
     <attr format="reference" name="shapeAppearanceCornerExtraLarge"/>
@@ -12918,6 +12930,10 @@
     <declare-styleable name="PopupWindowBackgroundState">
         
         <attr format="boolean" name="state_above_anchor"/>
+    </declare-styleable>
+    <declare-styleable name="PreviewView">
+        <attr name="scaleType"/>
+        <attr name="implementationMode"/>
     </declare-styleable>
     <declare-styleable name="PropertySet">
         

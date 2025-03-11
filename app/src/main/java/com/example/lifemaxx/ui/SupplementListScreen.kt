@@ -1,158 +1,270 @@
 package com.example.lifemaxx.ui
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.lifemaxx.model.Supplement
 import com.example.lifemaxx.viewmodel.SupplementViewModel
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.java.KoinJavaComponent.getKoin
 
 /**
  * Shows a list of all supplements plus a "plus" FAB in the bottom-left.
- * Clicking the FAB opens an AddSupplementDialog to add a new supplement.
- * Now, tapping each supplement opens an EditSupplementDialog to edit that item.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SupplementListScreen() {
-    val viewModel: SupplementViewModel = koinViewModel()
+    val TAG = "SupplementListScreen"
+
+    // Use a try-catch to handle any initialization issues
+    val viewModel: SupplementViewModel? = remember {
+        try {
+            getKoin().get<SupplementViewModel>()
+        } catch (e: Exception) {
+            Log.e("SupplementListScreen", "Error getting ViewModel: ${e.message}", e)
+            null
+        }
+    }
+
+    // If viewModel is null, we'll show an error state
+    if (viewModel == null) {
+        ErrorScreen(
+            message = "Failed to initialize supplements. Please restart the app or check your connection."
+        )
+        return
+    }
+
+    // State collections
     val supplements by viewModel.supplements.collectAsState()
+    val statusMessage by viewModel.statusMessage.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
 
-    // Control whether we show the "Add" dialog
-    var isAddDialogOpen by remember { mutableStateOf(false) }
-
-    // Track which supplement is being edited, if any
+    // UI state
+    var showAddDialog by remember { mutableStateOf(false) }
     var editingSupplement by remember { mutableStateOf<Supplement?>(null) }
+
+    // Snackbar
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Show error messages in snackbar
+    LaunchedEffect(error) {
+        error?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            viewModel.clearError()
+        }
+    }
+
+    // Show status messages in snackbar
+    LaunchedEffect(statusMessage) {
+        statusMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            viewModel.clearStatusMessage()
+        }
+    }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("All Supplements") })
-        }
+            TopAppBar(
+                title = { Text("Supplements") },
+                actions = {
+                    IconButton(onClick = { viewModel.fetchSupplements() }) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showAddDialog = true }
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Supplement")
+            }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            // Main list of supplements
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(supplements) { supplement ->
-                    SupplementItem(
-                        supplement = supplement,
-                        onDelete = { viewModel.deleteSupplement(supplement.id) },
-                        onClick = {
-                            // User clicked on the item -> open edit dialog
-                            editingSupplement = supplement
-                        }
-                    )
+            if (isLoading) {
+                // Loading indicator
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
-            }
-
-            // FloatingActionButton in bottom-left corner for adding new supplements
-            FloatingActionButton(
-                onClick = { isAddDialogOpen = true },
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(16.dp)
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Supplement")
-            }
-
-            // Show the Add dialog if user taps the "+"
-            if (isAddDialogOpen) {
-                AddSupplementDialog(
-                    onDismiss = { isAddDialogOpen = false },
-                    onConfirm = { name, dose, measureUnit, remaining ->
-                        val newSupplement = Supplement(
-                            name = name,
-                            dailyDose = dose,
-                            measureUnit = measureUnit,
-                            remainingQuantity = remaining
+            } else if (supplements.isEmpty()) {
+                // Empty state
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Medication,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.primary
                         )
-                        viewModel.addSupplement(newSupplement)
-                        isAddDialogOpen = false
-                    }
-                )
-            }
 
-            // Show the Edit dialog if a supplement is selected
-            editingSupplement?.let { supplement ->
-                EditSupplementDialog(
-                    oldSupplement = supplement,
-                    onDismiss = { editingSupplement = null },
-                    onConfirm = { name, dose, measureUnit, remaining ->
-                        // call viewModel.updateSupplement(...)
-                        viewModel.updateSupplement(
-                            supplement.id,
-                            name,
-                            dose,
-                            measureUnit,
-                            remaining
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            "No supplements found",
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center
                         )
-                        editingSupplement = null
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            "Tap the + button to add your first supplement",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(onClick = { showAddDialog = true }) {
+                            Icon(Icons.Default.Add, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Add Supplement")
+                        }
                     }
-                )
+                }
+            } else {
+                // Supplements list
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(
+                        items = supplements,
+                        key = { it.id }
+                    ) { supplement ->
+                        SupplementItem(
+                            supplement = supplement,
+                            onDelete = {
+                                scope.launch {
+                                    val result = snackbarHostState.showSnackbar(
+                                        message = "Delete ${supplement.name}?",
+                                        actionLabel = "Confirm",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                    if (result == SnackbarResult.ActionPerformed) {
+                                        viewModel.deleteSupplement(supplement.id)
+                                    }
+                                }
+                            },
+                            onClick = {
+                                editingSupplement = supplement
+                            }
+                        )
+                    }
+                }
             }
         }
     }
+
+    // Add dialog
+    if (showAddDialog) {
+        AddSupplementDialog(
+            onDismiss = { showAddDialog = false },
+            onConfirm = { name, dose, measureUnit, remaining ->
+                val newSupplement = Supplement(
+                    name = name,
+                    dailyDose = dose,
+                    measureUnit = measureUnit,
+                    remainingQuantity = remaining
+                )
+                viewModel.addSupplement(newSupplement)
+                showAddDialog = false
+            }
+        )
+    }
+
+    // Edit dialog
+    editingSupplement?.let { supplement ->
+        EditSupplementDialog(
+            oldSupplement = supplement,
+            onDismiss = { editingSupplement = null },
+            onConfirm = { name, dose, measureUnit, remaining ->
+                viewModel.updateSupplement(
+                    supplementId = supplement.id,
+                    name = name,
+                    dailyDose = dose,
+                    measureUnit = measureUnit,
+                    remaining = remaining
+                )
+                editingSupplement = null
+            }
+        )
+    }
 }
 
-/**
- * Represents each supplement item in the list, showing its name, daily dose,
- * remaining quantity, etc. with an option to delete.
- *
- * Now we also pass an `onClick` callback so the entire row is clickable.
- */
 @Composable
 fun SupplementItem(
     supplement: Supplement,
     onDelete: () -> Unit,
     onClick: () -> Unit
 ) {
-    ElevatedCard(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() } // Entire row is clickable
+            .clickable { onClick() }
     ) {
         Row(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(16.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(supplement.name, style = MaterialTheme.typography.titleMedium)
-                Text("Daily Dose: ${supplement.dailyDose} ${supplement.measureUnit}")
-                Text("Remaining: ${supplement.remainingQuantity} ${supplement.measureUnit}")
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    supplement.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Text(
+                    "Daily Dose: ${supplement.dailyDose} ${supplement.measureUnit}"
+                )
+
+                Text(
+                    "Remaining: ${supplement.remainingQuantity} ${supplement.measureUnit}"
+                )
             }
+
             IconButton(onClick = onDelete) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete"
+                )
             }
         }
     }
 }
 
-/**
- * A dialog for adding a new supplement. (Same as before)
- * The user picks:
- * - Name
- * - Daily Dose
- * - Remaining Quantity
- * - "Pill" or "Powder" (with "mg"/"g" choice)
- */
 @Composable
 fun AddSupplementDialog(
     onDismiss: () -> Unit,
@@ -175,15 +287,17 @@ fun AddSupplementDialog(
                     label = { Text("Name") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 OutlinedTextField(
                     value = dose,
-                    onValueChange = { dose = it },
+                    onValueChange = { dose = it.filter { c -> c.isDigit() } },
                     label = { Text("Daily Dose") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 OutlinedTextField(
                     value = remaining,
-                    onValueChange = { remaining = it },
+                    onValueChange = { remaining = it.filter { c -> c.isDigit() } },
                     label = { Text("Remaining Quantity") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -223,12 +337,17 @@ fun AddSupplementDialog(
             }
         },
         confirmButton = {
-            Button(onClick = {
-                val doseInt = dose.toIntOrNull() ?: 1
-                val remainingInt = remaining.toIntOrNull() ?: 0
-                val measureUnit = if (formType == "Pill") "pill" else powderMeasure
-                onConfirm(name, doseInt, measureUnit, remainingInt)
-            }) {
+            Button(
+                onClick = {
+                    if (name.isBlank()) return@Button
+
+                    val doseInt = dose.toIntOrNull() ?: 1
+                    val remainingInt = remaining.toIntOrNull() ?: 0
+                    val measureUnit = if (formType == "Pill") "pill" else powderMeasure
+                    onConfirm(name, doseInt, measureUnit, remainingInt)
+                },
+                enabled = name.isNotBlank()
+            ) {
                 Text("Add")
             }
         },
@@ -240,10 +359,6 @@ fun AddSupplementDialog(
     )
 }
 
-/**
- * Similar to AddSupplementDialog, but pre-populates fields with the existing supplement data.
- * On confirm, it calls `onConfirm` with the updated info, so the parent can do viewModel.updateSupplement(...).
- */
 @Composable
 fun EditSupplementDialog(
     oldSupplement: Supplement,
@@ -258,6 +373,7 @@ fun EditSupplementDialog(
     var formType by remember {
         mutableStateOf(if (oldSupplement.measureUnit == "pill") "Pill" else "Powder")
     }
+
     // If formType is Powder, user picks mg/g
     var powderMeasure by remember {
         mutableStateOf(
@@ -279,15 +395,17 @@ fun EditSupplementDialog(
                     label = { Text("Name") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 OutlinedTextField(
                     value = dose,
-                    onValueChange = { dose = it },
+                    onValueChange = { dose = it.filter { c -> c.isDigit() } },
                     label = { Text("Daily Dose") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 OutlinedTextField(
                     value = remaining,
-                    onValueChange = { remaining = it },
+                    onValueChange = { remaining = it.filter { c -> c.isDigit() } },
                     label = { Text("Remaining Quantity") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -327,12 +445,17 @@ fun EditSupplementDialog(
             }
         },
         confirmButton = {
-            Button(onClick = {
-                val doseInt = dose.toIntOrNull() ?: 1
-                val remainingInt = remaining.toIntOrNull() ?: 0
-                val measureUnit = if (formType == "Pill") "pill" else powderMeasure
-                onConfirm(name, doseInt, measureUnit, remainingInt)
-            }) {
+            Button(
+                onClick = {
+                    if (name.isBlank()) return@Button
+
+                    val doseInt = dose.toIntOrNull() ?: 1
+                    val remainingInt = remaining.toIntOrNull() ?: 0
+                    val measureUnit = if (formType == "Pill") "pill" else powderMeasure
+                    onConfirm(name, doseInt, measureUnit, remainingInt)
+                },
+                enabled = name.isNotBlank()
+            ) {
                 Text("Save")
             }
         },

@@ -1,53 +1,80 @@
 package com.example.lifemaxx.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lifemaxx.model.Reminder
-import com.example.lifemaxx.util.NotificationScheduler
+import com.example.lifemaxx.util.NotificationManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 /**
- * Holds a list of Reminder objects in-memory for demo.
- * You could store them in a local DB or Firestore if needed.
+ * ViewModel for managing Reminder objects with persistence in Firestore.
  */
 class RemindersViewModel : ViewModel() {
+    private val TAG = "RemindersViewModel"
 
     // Our list of reminders
     private val _reminders = MutableStateFlow<List<Reminder>>(emptyList())
     val reminders: StateFlow<List<Reminder>> get() = _reminders
 
-    // e.g., we might load from DB in init, but here is an empty list
+    // Status message for operation feedback
+    private val _statusMessage = MutableStateFlow<String?>(null)
+    val statusMessage: StateFlow<String?> get() = _statusMessage
+
     init {
-        // loadRemindersIfNeeded()
+        loadReminders()
     }
 
     /**
-     * Adds a new reminder to the list and schedules it if isEnabled == true.
+     * Load reminders from Firestore
      */
-    fun addReminder(reminder: Reminder, context: Context) {
+    private fun loadReminders() {
         viewModelScope.launch {
-            val list = _reminders.value.toMutableList()
-            list.add(reminder)
-            _reminders.value = list
-
-            // If it's enabled, schedule
-            if (reminder.isEnabled) {
-                NotificationScheduler.scheduleReminder(
-                    context,
-                    reminder.timeInMillis,
-                    reminder.id,
-                    reminder.message
-                )
+            try {
+                val loadedReminders = NotificationManager.loadRemindersFromFirestore()
+                _reminders.value = loadedReminders
+                Log.d(TAG, "Loaded ${loadedReminders.size} reminders")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading reminders: ${e.message}", e)
+                _statusMessage.value = "Failed to load reminders"
             }
         }
     }
 
     /**
-     * Update an existing reminder. If old alarm was enabled, cancel it first.
-     * Then if new version is enabled, schedule again.
+     * Adds a new reminder and schedules it if enabled
+     */
+    fun addReminder(reminder: Reminder, context: Context) {
+        viewModelScope.launch {
+            try {
+                // First update the UI with optimistic update
+                val updatedList = _reminders.value.toMutableList()
+                updatedList.add(reminder)
+                _reminders.value = updatedList
+
+                // Schedule the reminder
+                if (reminder.isEnabled) {
+                    val success = NotificationManager.scheduleReminder(context, reminder)
+                    if (success) {
+                        _statusMessage.value = "Reminder scheduled"
+                    } else {
+                        _statusMessage.value = "Failed to schedule reminder"
+                    }
+                } else {
+                    _statusMessage.value = "Reminder added (not enabled)"
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error adding reminder: ${e.message}", e)
+                _statusMessage.value = "Error: ${e.message}"
+            }
+        }
+    }
+
+    /**
+     * Update an existing reminder
      */
     fun updateReminder(
         context: Context,
@@ -57,76 +84,115 @@ class RemindersViewModel : ViewModel() {
         newIsEnabled: Boolean
     ) {
         viewModelScope.launch {
-            val list = _reminders.value.toMutableList()
-            val index = list.indexOfFirst { it.id == id }
-            if (index != -1) {
-                val oldReminder = list[index]
-                // Cancel old alarm
-                NotificationScheduler.cancelReminder(context, oldReminder.id)
+            try {
+                // First cancel the old reminder
+                NotificationManager.cancelReminder(context, id)
 
-                val updated = oldReminder.copy(
+                // Create updated reminder
+                val updatedReminder = Reminder(
+                    id = id,
                     timeInMillis = newTimeInMillis,
                     message = newMessage,
                     isEnabled = newIsEnabled
                 )
-                list[index] = updated
-                _reminders.value = list
 
-                if (updated.isEnabled) {
-                    NotificationScheduler.scheduleReminder(
-                        context,
-                        updated.timeInMillis,
-                        updated.id,
-                        updated.message
-                    )
+                // Update the in-memory list
+                val list = _reminders.value.toMutableList()
+                val index = list.indexOfFirst { it.id == id }
+                if (index != -1) {
+                    list[index] = updatedReminder
+                    _reminders.value = list
                 }
+
+                // Schedule if enabled
+                if (newIsEnabled) {
+                    val success = NotificationManager.scheduleReminder(context, updatedReminder)
+                    if (success) {
+                        _statusMessage.value = "Reminder updated and scheduled"
+                    } else {
+                        _statusMessage.value = "Reminder updated but scheduling failed"
+                    }
+                } else {
+                    _statusMessage.value = "Reminder updated (not enabled)"
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error updating reminder: ${e.message}", e)
+                _statusMessage.value = "Error updating reminder: ${e.message}"
             }
         }
     }
 
     /**
-     * Delete a reminder entirely.
+     * Delete a reminder
      */
     fun deleteReminder(context: Context, reminderId: Int) {
         viewModelScope.launch {
-            val list = _reminders.value.toMutableList()
-            val r = list.find { it.id == reminderId } ?: return@launch
+            try {
+                // Cancel the reminder first
+                val success = NotificationManager.cancelReminder(context, reminderId)
 
-            // If it was enabled, cancel
-            if (r.isEnabled) {
-                NotificationScheduler.cancelReminder(context, r.id)
+                // Update UI state
+                val list = _reminders.value.toMutableList()
+                list.removeIf { it.id == reminderId }
+                _reminders.value = list
+
+                if (success) {
+                    _statusMessage.value = "Reminder deleted"
+                } else {
+                    _statusMessage.value = "Reminder deleted from list but cancellation failed"
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error deleting reminder: ${e.message}", e)
+                _statusMessage.value = "Error deleting reminder: ${e.message}"
             }
-            list.remove(r)
-            _reminders.value = list
         }
     }
 
     /**
-     * Toggle on/off. If turning off, cancel. If turning on, schedule.
+     * Toggle a reminder's enabled state
      */
     fun toggleReminder(context: Context, reminderId: Int, newEnabled: Boolean) {
         viewModelScope.launch {
-            val list = _reminders.value.toMutableList()
-            val index = list.indexOfFirst { it.id == reminderId }
-            if (index != -1) {
-                val old = list[index]
-                // Cancel old
-                NotificationScheduler.cancelReminder(context, old.id)
+            try {
+                // Find the reminder
+                val list = _reminders.value.toMutableList()
+                val index = list.indexOfFirst { it.id == reminderId }
+                if (index == -1) return@launch
 
-                val updated = old.copy(isEnabled = newEnabled)
-                list[index] = updated
+                val oldReminder = list[index]
+
+                // Cancel existing if it was enabled
+                if (oldReminder.isEnabled) {
+                    NotificationManager.cancelReminder(context, reminderId)
+                }
+
+                // Create updated reminder
+                val updatedReminder = oldReminder.copy(isEnabled = newEnabled)
+                list[index] = updatedReminder
                 _reminders.value = list
 
-                // If newly enabled, schedule
+                // Schedule if newly enabled
                 if (newEnabled) {
-                    NotificationScheduler.scheduleReminder(
-                        context,
-                        updated.timeInMillis,
-                        updated.id,
-                        updated.message
-                    )
+                    val success = NotificationManager.scheduleReminder(context, updatedReminder)
+                    if (success) {
+                        _statusMessage.value = "Reminder enabled and scheduled"
+                    } else {
+                        _statusMessage.value = "Failed to schedule reminder"
+                    }
+                } else {
+                    _statusMessage.value = "Reminder disabled"
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error toggling reminder: ${e.message}", e)
+                _statusMessage.value = "Error toggling reminder: ${e.message}"
             }
         }
+    }
+
+    /**
+     * Clear the status message after consumption
+     */
+    fun clearStatusMessage() {
+        _statusMessage.value = null
     }
 }

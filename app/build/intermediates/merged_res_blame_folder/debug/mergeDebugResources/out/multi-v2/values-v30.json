@@ -4,7 +4,7 @@
             "outputFile": "com.example.lifemaxx.app-mergeDebugResources-3:/values-v30/values-v30.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\lost\\.gradle\\caches\\8.9\\transforms\\35240cc2e09ff2446a02ece16d4fd78a\\transformed\\jetified-material3-release\\res\\values-v30\\values-v30.xml",
+                    "source": "C:\\Users\\lost\\.gradle\\caches\\8.9\\transforms\\4af2d390fc59253637c1952a9a272b8b\\transformed\\jetified-material3-release\\res\\values-v30\\values-v30.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
