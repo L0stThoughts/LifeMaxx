@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.lifemaxx.model.NutritionEntry
 import com.example.lifemaxx.repository.NutritionRepository
 import com.example.lifemaxx.util.DateUtils
-import com.example.lifemaxx.util.FirebaseUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,9 +15,7 @@ import java.util.*
  * ViewModel for the nutrition tracker feature with complete functionality.
  */
 class NutritionViewModel(
-    private val repository: NutritionRepository = NutritionRepository(
-        context = TODO()
-    )
+    private val repository: NutritionRepository
 ) : ViewModel() {
     private val TAG = "NutritionViewModel"
 
@@ -238,6 +235,23 @@ class NutritionViewModel(
      */
     fun clearStatusMessage() {
         _statusMessage.value = null
+    }
+
+    /**
+     * Try to sync any locally saved data with Firebase if we're back online
+     */
+    fun syncWithFirebase() {
+        viewModelScope.launch {
+            try {
+                val count = repository.syncLocalData()
+                if (count != 0) {  // Changed from count > 0 to avoid comparison issue
+                    _statusMessage.value = "Synced $count operations with cloud"
+                    loadEntriesForCurrentDate() // Refresh with latest data
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error syncing data: ${e.message}", e)
+            }
+        }
     }
 
     /**

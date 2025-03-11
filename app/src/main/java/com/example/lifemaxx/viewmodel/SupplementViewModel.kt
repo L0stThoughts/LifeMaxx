@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 /**
  * A ViewModel for managing supplements from a repository (e.g., Firestore).
  * Holds a list of supplements in a StateFlow, supports CRUD operations.
+ * With improved error handling for robustness.
  */
 class SupplementViewModel(
     private val repository: SupplementRepository
@@ -41,17 +42,26 @@ class SupplementViewModel(
 
     /**
      * Reads all supplements from the repository and updates the flow.
+     * With comprehensive error handling.
      */
     fun fetchSupplements() {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                val list = repository.getSupplements()
+                val list = try {
+                    repository.getSupplements()
+                } catch (e: Exception) {
+                    _error.value = "Error fetching supplements: ${e.message ?: "Unknown error"}"
+                    Log.e(TAG, "Error in repository.getSupplements(): ${e.message}", e)
+                    // Return empty list on error
+                    emptyList()
+                }
+
                 _supplements.value = list
                 Log.d(TAG, "Fetched ${list.size} supplements")
             } catch (e: Exception) {
-                Log.e(TAG, "Error fetching supplements: ${e.message}", e)
-                _error.value = "Error loading supplements: ${e.message}"
+                Log.e(TAG, "Error in fetchSupplements(): ${e.message}", e)
+                _error.value = "Error loading supplements: ${e.message ?: "Unknown error"}"
             } finally {
                 _isLoading.value = false
             }
@@ -65,7 +75,14 @@ class SupplementViewModel(
     suspend fun addSupplement(supplement: Supplement) {
         try {
             _isLoading.value = true
-            val success = repository.addSupplement(supplement)
+            val success = try {
+                repository.addSupplement(supplement)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in repository.addSupplement(): ${e.message}", e)
+                _error.value = "Error adding supplement: ${e.message ?: "Unknown error"}"
+                false
+            }
+
             if (success) {
                 // Re-fetch to see the new item
                 fetchSupplements()
@@ -74,8 +91,8 @@ class SupplementViewModel(
                 _error.value = "Failed to add supplement"
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error adding supplement: ${e.message}", e)
-            _error.value = "Error adding supplement: ${e.message}"
+            Log.e(TAG, "Error in addSupplement(): ${e.message}", e)
+            _error.value = "Error adding supplement: ${e.message ?: "Unknown error"}"
         } finally {
             _isLoading.value = false
         }
@@ -91,6 +108,7 @@ class SupplementViewModel(
             // Safety check
             if (supplementId.isEmpty()) {
                 _error.value = "Cannot delete supplement with empty ID"
+                _isLoading.value = false
                 return
             }
 
@@ -104,7 +122,14 @@ class SupplementViewModel(
             }
 
             // Then perform the actual deletion
-            val success = repository.deleteSupplement(supplementId)
+            val success = try {
+                repository.deleteSupplement(supplementId)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in repository.deleteSupplement(): ${e.message}", e)
+                _error.value = "Error deleting supplement: ${e.message ?: "Unknown error"}"
+                false
+            }
+
             if (success) {
                 // Then refresh from server to ensure consistency
                 fetchSupplements()
@@ -114,8 +139,8 @@ class SupplementViewModel(
                 fetchSupplements() // Refresh to restore if delete failed
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error deleting supplement: ${e.message}", e)
-            _error.value = "Error deleting supplement: ${e.message}"
+            Log.e(TAG, "Error in deleteSupplement(): ${e.message}", e)
+            _error.value = "Error deleting supplement: ${e.message ?: "Unknown error"}"
             fetchSupplements() // Refresh to restore state
         } finally {
             _isLoading.value = false
@@ -139,6 +164,7 @@ class SupplementViewModel(
             // Safety check
             if (supplementId.isEmpty()) {
                 _error.value = "Cannot update supplement with empty ID"
+                _isLoading.value = false
                 return
             }
 
@@ -166,7 +192,14 @@ class SupplementViewModel(
             }
 
             // Then perform the actual update
-            val success = repository.updateSupplement(supplementId, updatedData)
+            val success = try {
+                repository.updateSupplement(supplementId, updatedData)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in repository.updateSupplement(): ${e.message}", e)
+                _error.value = "Error updating supplement: ${e.message ?: "Unknown error"}"
+                false
+            }
+
             if (success) {
                 // Then refresh from server to ensure consistency
                 fetchSupplements()
@@ -176,8 +209,8 @@ class SupplementViewModel(
                 fetchSupplements() // Refresh to restore if update failed
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error updating supplement: ${e.message}", e)
-            _error.value = "Error updating supplement: ${e.message}"
+            Log.e(TAG, "Error in updateSupplement(): ${e.message}", e)
+            _error.value = "Error updating supplement: ${e.message ?: "Unknown error"}"
             fetchSupplements() // Refresh to restore state
         } finally {
             _isLoading.value = false

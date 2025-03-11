@@ -20,7 +20,7 @@ import java.util.*
  * ViewModel for water intake tracking functionality with complete methods.
  */
 class WaterIntakeViewModel(
-    private val repository: WaterIntakeRepository = WaterIntakeRepository()
+    private val repository: WaterIntakeRepository
 ) : ViewModel() {
     private val TAG = "WaterIntakeViewModel"
 
@@ -61,6 +61,9 @@ class WaterIntakeViewModel(
     init {
         fetchWaterIntakesForCurrentDate()
         fetchWeeklyTotals()
+
+        // Try to sync any pending operations
+        syncWithServer()
     }
 
     /**
@@ -262,6 +265,24 @@ class WaterIntakeViewModel(
      */
     fun cancelEditingWaterIntake() {
         _editingWaterIntake.value = null
+    }
+
+    /**
+     * Sync any locally stored water intakes with the server.
+     */
+    fun syncWithServer() {
+        viewModelScope.launch {
+            try {
+                val count = repository.syncPendingOperations()
+                if (count != 0) {
+                    _statusMessage.value = "Synced $count water intakes"
+                    fetchWaterIntakesForCurrentDate()
+                    fetchWeeklyTotals()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error syncing water intakes: ${e.message}", e)
+            }
+        }
     }
 
     /**
