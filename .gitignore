@@ -4,4 +4,4 @@
 build/
 app/google-services.json
 local.properties
-app/build
+app/build/
