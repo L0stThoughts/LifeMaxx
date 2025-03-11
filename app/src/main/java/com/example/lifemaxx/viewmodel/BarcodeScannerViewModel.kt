@@ -7,6 +7,7 @@ import com.example.lifemaxx.model.Supplement
 import com.example.lifemaxx.model.SupplementBarcode
 import com.example.lifemaxx.repository.BarcodeRepository
 import com.example.lifemaxx.repository.SupplementRepository
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -43,12 +44,19 @@ class BarcodeScannerViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> get() = _error
 
+    // Error handler to prevent crashes
+    private val errorHandler = CoroutineExceptionHandler { _, exception ->
+        Log.e(TAG, "Error in BarcodeScannerViewModel: ${exception.message}", exception)
+        _error.value = "An error occurred: ${exception.message}"
+        _isLoading.value = false
+    }
+
     /**
      * Handle a detected barcode by looking up supplement information.
      */
     fun onBarcodeDetected(barcode: String) {
+        // Prevent duplicate processing
         if (_scannedBarcode.value == barcode) {
-            // Already processing this barcode
             return
         }
 
@@ -56,7 +64,7 @@ class BarcodeScannerViewModel(
         _isScanning.value = false
         _isLoading.value = true
 
-        viewModelScope.launch {
+        viewModelScope.launch(errorHandler) {
             try {
                 val supplementInfo = barcodeRepository.lookupBarcode(barcode)
                 _supplementInfo.value = supplementInfo
@@ -79,7 +87,7 @@ class BarcodeScannerViewModel(
         measureUnit: String,
         remainingQuantity: Int
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(errorHandler) {
             _isLoading.value = true
             try {
                 // Create supplement from form data

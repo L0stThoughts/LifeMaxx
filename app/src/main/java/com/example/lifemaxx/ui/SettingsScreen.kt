@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,7 +15,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.lifemaxx.util.FirebaseUtils
 import com.example.lifemaxx.util.NotificationManager
+import com.example.lifemaxx.util.OfflineModeManager
 import com.example.lifemaxx.viewmodel.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -30,6 +33,17 @@ fun SettingsScreen(navController: NavController) {
     var useDarkTheme by remember { mutableStateOf(false) }
     var useLargeText by remember { mutableStateOf(false) }
     var showDataClearDialog by remember { mutableStateOf(false) }
+
+    // Get offline mode status from OfflineModeManager
+    var isManualOfflineMode by remember { mutableStateOf(OfflineModeManager.getManualOfflineMode(context)) }
+    val isManualOfflineFlow by OfflineModeManager.isManualOfflineMode.collectAsState()
+    val isNetworkAvailable by OfflineModeManager.isNetworkAvailable.collectAsState()
+    val isOfflineMode by OfflineModeManager.isOfflineMode.collectAsState()
+
+    // Update local state when flow changes
+    LaunchedEffect(isManualOfflineFlow) {
+        isManualOfflineMode = isManualOfflineFlow
+    }
 
     val statusMessage by viewModel.statusMessage.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -101,6 +115,78 @@ fun SettingsScreen(navController: NavController) {
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center
                     )
+                }
+            }
+
+            // Offline Mode card - NEW
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    SettingsSectionHeader(
+                        icon = Icons.Outlined.CloudOff,
+                        title = "Offline Mode"
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Toggle for enabling/disabling offline mode
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Enable Offline Mode")
+                            Text(
+                                "Store all data locally without syncing to cloud",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        Switch(
+                            checked = isManualOfflineMode,
+                            onCheckedChange = { isEnabled ->
+                                isManualOfflineMode = isEnabled
+                                OfflineModeManager.setManualOfflineMode(context, isEnabled)
+
+                                if (isEnabled) {
+                                    viewModel.setStatusMessage("Offline mode enabled. Data will be stored locally only.")
+                                } else {
+                                    viewModel.setStatusMessage("Offline mode disabled. Data will sync when connection is available.")
+                                }
+                            }
+                        )
+                    }
+
+                    // Show network status indicators
+                    if (!isManualOfflineMode && !isNetworkAvailable) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "Automatically in offline mode due to no connection",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
@@ -207,6 +293,25 @@ fun SettingsScreen(navController: NavController) {
                         icon = Icons.Default.Storage,
                         title = "Data Management"
                     )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Sync data button - NEW
+                    Button(
+                        onClick = {
+                            if (isOfflineMode) {
+                                viewModel.setStatusMessage("Cannot sync while in offline mode")
+                            } else {
+                                viewModel.syncAllData(context)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !isOfflineMode
+                    ) {
+                        Icon(Icons.Default.Sync, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Sync All Data")
+                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
 

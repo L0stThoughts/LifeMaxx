@@ -1,3 +1,5 @@
+// 1. First, let's fix the FirebaseUtils.kt file to properly handle offline mode
+
 package com.example.lifemaxx.util
 
 import android.content.Context
@@ -13,9 +15,13 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
- * Enhanced utility object for Firebase with offline detection and shared preferences backup
+ * Central utility object for Firebase with offline detection and shared preferences backup
  */
 object FirebaseUtils {
     private const val TAG = "FirebaseUtils"
@@ -23,10 +29,15 @@ object FirebaseUtils {
     // Shared preferences constants
     private const val PREFS_NAME = "LifeMaxxAppPrefs"
     private const val KEY_OFFLINE_MODE = "offline_mode"
+    private const val KEY_MANUAL_OFFLINE_MODE = "manual_offline_mode"
 
     // Offline mode flow that can be observed by components
     private val _isOfflineMode = MutableStateFlow(false)
     val isOfflineMode: StateFlow<Boolean> = _isOfflineMode
+
+    // Manual offline mode set by user
+    private val _isManualOfflineMode = MutableStateFlow(false)
+    val isManualOfflineMode: StateFlow<Boolean> = _isManualOfflineMode
 
     // Track initialization status
     private var isInitialized = false
@@ -80,16 +91,25 @@ object FirebaseUtils {
             return true
         }
 
-        // Mark that we've attempted initialization
-        initializationAttempted = true
+        // Initialize the offline mode manager
+        OfflineModeManager.initialize(context)
 
-        // Check current network connectivity
-        val isConnected = isNetworkAvailable(context)
-        if (!isConnected) {
-            Log.w(TAG, "No network connection, setting offline mode")
-            setOfflineMode(context, true)
+        // Start observing offline mode changes
+        CoroutineScope(Dispatchers.Main).launch {
+            OfflineModeManager.isOfflineMode.collect { isOffline ->
+                _isOfflineMode.value = isOffline
+                Log.d(TAG, "Offline mode updated from manager: $isOffline")
+            }
+        }
+
+        // Check if we're in offline mode
+        if (OfflineModeManager.isOfflineMode.value) {
+            Log.d(TAG, "Offline mode is active, skipping Firebase initialization")
             return false
         }
+
+        // Mark that we've attempted initialization
+        initializationAttempted = true
 
         return try {
             // Attempt to initialize Firebase
@@ -152,10 +172,44 @@ object FirebaseUtils {
     }
 
     /**
+     * Set manual offline mode (user preference)
+     */
+    fun setManualOfflineMode(context: Context, enabled: Boolean) {
+        // Use the OfflineModeManager to set manual offline mode
+        OfflineModeManager.setManualOfflineMode(context, enabled)
+
+        // Update our internal state to match
+        _isManualOfflineMode.value = enabled
+        Log.d(TAG, "Manual offline mode set to: $enabled through manager")
+    }
+
+    /**
+     * For internal use by OfflineModeManager only
+     */
+    internal fun setOfflineModeInternal(offlineMode: Boolean) {
+        _isOfflineMode.value = offlineMode
+        Log.d(TAG, "Offline mode internally set to: $offlineMode")
+    }
+
+    /**
+     * Check if user has enabled manual offline mode
+     */
+    fun isManualOfflineModeEnabled(context: Context): Boolean {
+        val enabled = getPrefs(context).getBoolean(KEY_MANUAL_OFFLINE_MODE, false)
+        _isManualOfflineMode.value = enabled
+        return enabled
+    }
+
+    /**
      * Check if app is in offline mode
      */
     fun isOfflineMode(context: Context): Boolean {
-        // Check stored preference first
+        // If manual offline mode is enabled, we're definitely offline
+        if (isManualOfflineModeEnabled(context)) {
+            return true
+        }
+
+        // Check stored preference
         val storedOfflineMode = getPrefs(context).getBoolean(KEY_OFFLINE_MODE, false)
 
         // Also update the flow value to match
@@ -170,6 +224,11 @@ object FirebaseUtils {
      * Try to go online and sync data if network is available
      */
     fun tryGoOnline(context: Context): Boolean {
+        // Don't go online if manual offline mode is enabled
+        if (isManualOfflineModeEnabled(context)) {
+            return false
+        }
+
         if (isNetworkAvailable(context)) {
             // Try to initialize Firebase if it wasn't before
             if (!isInitialized) {
@@ -197,13 +256,18 @@ object FirebaseUtils {
                 "users",
                 "reminderSettings",
                 "waterIntakes",
-                "nutritionEntries"
+                "nutritionEntries",
+                "supplementBarcodes",
+                "sleepEntries"
             )
+
+            // Create necessary data structure for placeholder
+            val placeholderData = mapOf("placeholder" to true, "timestamp" to System.currentTimeMillis())
 
             for (collection in collections) {
                 firestore.collection(collection)
                     .document("placeholder")
-                    .set(mapOf("initialized" to true))
+                    .set(placeholderData)
                     .addOnSuccessListener {
                         Log.d(TAG, "Collection initialized: $collection")
                     }

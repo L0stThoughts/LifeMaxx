@@ -8,7 +8,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.example.lifemaxx.ui.theme.LifeMaxxTheme
 import com.example.lifemaxx.ui.theme.SparkTopAppBar
-import com.example.lifemaxx.util.FirebaseUtils
 import com.example.lifemaxx.util.NotificationManager
 import com.google.firebase.FirebaseApp
 import kotlinx.coroutines.delay
@@ -28,11 +26,12 @@ class MainActivity : ComponentActivity() {
     private val TAG = "MainActivity"
 
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var cameraPermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize permission launcher
+        // Initialize permission launchers
         notificationPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
@@ -40,17 +39,14 @@ class MainActivity : ComponentActivity() {
             Log.d(TAG, "Notification permission $status")
         }
 
-        // Initialize Firebase first - do this synchronously to ensure it's ready
-        try {
-            if (FirebaseApp.getApps(this).isNotEmpty()) {
-                Log.d(TAG, "Firebase already initialized")
-            } else {
-                FirebaseApp.initializeApp(this)
-                Log.d(TAG, "Firebase initialized manually")
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error initializing Firebase: ${e.message}", e)
+        cameraPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            val status = if (isGranted) "granted" else "denied"
+            Log.d(TAG, "Camera permission $status")
         }
+
+        // Don't initialize Firebase here - it's done in LifeMaxxApp
 
         // Create notification channel
         try {
@@ -66,9 +62,22 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        // Pre-request camera permission to avoid barcode scanner issues
+        if (!isCameraPermissionGranted()) {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+
         // Set content with a simpler, time-based splash screen
         setContent {
             SimpleSplashScreen()
+        }
+    }
+
+    private fun isCameraPermissionGranted(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkSelfPermission(Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        } else {
+            true
         }
     }
 

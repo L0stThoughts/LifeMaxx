@@ -15,7 +15,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.lifemaxx.model.Supplement
-import com.example.lifemaxx.util.FirebaseUtils
 import com.example.lifemaxx.viewmodel.DoseTrackerViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -29,11 +28,6 @@ import org.koin.androidx.compose.koinViewModel
 fun DoseTrackerScreen(navController: NavController) {
     val TAG = "DoseTrackerScreen"
     val context = LocalContext.current
-
-    // Initialize Firebase first
-    LaunchedEffect(Unit) {
-        FirebaseUtils.initializeFirebase(context)
-    }
 
     val viewModel: DoseTrackerViewModel = koinViewModel()
     val scope = rememberCoroutineScope()
@@ -64,6 +58,11 @@ fun DoseTrackerScreen(navController: NavController) {
             snackbarHostState.showSnackbar(message)
             viewModel.clearStatusMessage()
         }
+    }
+
+    // Fetch supplements when the screen is first displayed
+    LaunchedEffect(Unit) {
+        viewModel.fetchSupplements()
     }
 
     Scaffold(
