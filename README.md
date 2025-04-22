@@ -2,7 +2,7 @@
 
 ### Autor: Daniel Štuka
 
-### Aktuální verze 1.0.0
+### Aktuální verze 3.6.0
 
 # Seznam použitých zkratek
 
@@ -203,16 +203,17 @@ Optimalizace výkonu a spotřeby baterie
 Přidány detailní statistiky pro spánek
 Vylepšené notifikace a připomenutí
 ```
-## Verze 1.0.0
+## Verze 3.6.0
 
 ```
+První veřejné vydání
 Kompletní přepracování UI do Jetpack Compose
 Migrace na MVVM architekturu
 Implementace skenování čárových kódů
 Přidáno sledování spánku
 Firebase integrace pro cloudové ukládání dat
 ```
-## Verze 0.5.0
+## Verze 2.5.0
 
 ```
 Přidáno sledování pitného režimu
@@ -221,10 +222,9 @@ Vylepšený systém notifikací
 Přidána podpora tmavého režimu
 Rozšířené nastavení aplikace
 ```
-## Verze 0.1.0
+## Verze 1.5.0
 
 ```
-První veřejné vydání
 Základní správa doplňků stravy
 Jednoduché sledování dávkování
 Základní připomenutí
