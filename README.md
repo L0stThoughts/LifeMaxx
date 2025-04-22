@@ -12,13 +12,13 @@ MVVM = Model-View-ViewModel (Architektonický vzor)
 DI = Dependency Injection (Vkládání závislostí)
 API = Application Programming Interface
 ```
-# Popis produktuPopis produktu
+# Popis produktu
 
 LifeMaxx je komplexní mobilní aplikace pro Android zaměřená na sledování a správu zdravotního stavu uživatele, se zvláštním důrazem na sledování doplňků stravy,
 pitného režimu, spánku a celkové výživy. Aplikace vznikla jako řešení problému mnoha lidí, kteří potřebují přehledně a efektivně sledovat svůj denní příjem doplňků
 stravy a jejich vliv na celkové zdraví.
 
-## Cíl projektuCíl projektu
+## Cíl projektu
 
 Cílem LifeMaxx je poskytnout uživatelům jednoduché a intuitivní rozhraní pro:
 
@@ -29,12 +29,12 @@ Monitoring spánku a jeho kvality
 Evidenci příjmu živin a kalorií
 Nastavení připomenutí a upozornění
 ```
-## Zaměření projektuZaměření projektu
+## Zaměření projektu
 
 Aplikace se zaměřuje na komplexní přístup ke zdraví uživatele prostřednictvím sledování klíčových zdravotních metrik. LifeMaxx umožňuje uživatelům vidět
 souvislosti mezi užívanými doplňky, kvalitou spánku, hydratací a celkovým zdravotním stavem.
 
-## Cílová skupina uživatelůCílová skupina uživatelů
+## Cílová skupina uživatelů
 
 ```
 Lidé se zdravotními problémy vyžadující pravidelné užívání doplňků stravy
@@ -43,9 +43,9 @@ Osoby se zájmem o zlepšení svého zdravotního stavu
 Starší lidé, kteří potřebují připomenutí k užívání léků či doplňků
 Kdokoliv se zájmem o systematické sledování svých zdravotních návyků
 ```
-# Analýza a návrhAnalýza a návrh
+# Analýza a návrh
 
-## Analýza problémuAnalýza problému
+## Analýza problému
 
 Během analýzy byly identifikovány následující problémy, které aplikace řeší:
 
@@ -56,10 +56,10 @@ Během analýzy byly identifikovány následující problémy, které aplikace �
 4. Nepřehlednost v užívaných produktechNepřehlednost v užívaných produktech - Uživatelé ztrácí přehled o všech užívaných doplňcích
 5. Chybějící notifikaceChybějící notifikace - Absence připomenutí v kritických momentech
 ```
-## PožadavkyPožadavky
+## Požadavky
 
 
-## Funkční požadavkyFunkční požadavky
+## Funkční požadavky
 
 ```
 Správa doplňků stravy (přidání, úprava, mazání)
@@ -71,7 +71,7 @@ Systém upozornění a připomenutí
 Offline režim s lokálním ukládáním dat
 Skenování čárových kódů doplňků
 ```
-## Nefunkční požadavkyNefunkční požadavky
+## Nefunkční požadavky
 
 ```
 Intuitivní a přehledné uživatelské rozhraní
@@ -81,7 +81,7 @@ Nízká spotřeba baterie
 Kompatibilita se zařízeními Android 8.0+
 Minimální využití mobilních dat
 ```
-## Architektura / Návrh aplikaceArchitektura / Návrh aplikace
+## Architektura / Návrh aplikace
 
 Aplikace LifeMaxx využívá moderní architekturu MVVM (Model-View-ViewModel) pro oddělení logiky a UI. Klíčové komponenty architektury:
 
@@ -97,7 +97,7 @@ Pro persistenci dat využívá aplikace kombinaci:
 Firebase Firestore pro cloudové ukládání
 SharedPreferences pro lokální ukládání v offline režimu
 ```
-# Development/PlatformaDevelopment/Platforma
+# Development/Platforma
 
 ## Programovací jazykyProgramovací jazyky
 
@@ -105,12 +105,12 @@ SharedPreferences pro lokální ukládání v offline režimu
 ```
 KotlinKotlin - Moderní, bezpečný a expresivní jazyk pro vývoj Android aplikací, zvolený pro své pokročilé funkce, null-safety a kompatibilitu s Java ekosystémem.
 ```
-## Vývojové prostředí (IDE)Vývojové prostředí (IDE)
+## Vývojové prostředí (IDE)
 
 ```
 Android StudioAndroid Studio - Oficiální IDE pro vývoj Android aplikací, poskytující kompletní sadu nástrojů pro vývoj, testování a ladění.
 ```
-## Další nástroje a technologieDalší nástroje a technologie
+## Další nástroje a technologie
 
 ```
 Jetpack ComposeJetpack Compose - Moderní UI toolkit pro deklarativní tvorbu uživatelského rozhraní
@@ -125,7 +125,7 @@ AndroidXAndroidX - Modernizované knihovny podpory pro Android
 Material Design 3Material Design 3 - Design systém od Google pro konzistentní a intuitivní UI
 ```
 
-# LicenceLicence
+# Licence
 
 LifeMaxx je vyvíjen jako soukromý softwarový produkt s následujícími licenčními podmínkami:
 
@@ -143,7 +143,7 @@ Jetpack Compose: Apache License 2.
 Koin: Apache License 2.
 ML Kit: Apache License 2.
 ```
-# Support/SLASupport/SLA
+# Support/SLA
 
 LifeMaxx aktuálně nabízí následující možnosti podpory:
 
@@ -160,9 +160,9 @@ Online dokumentace a FAQOnline dokumentace a FAQ: Podrobný manuál a často kla
 Komunitní fórumKomunitní fórum: Pro sdílení tipů a řešení problémů mezi uživateli
 Premium podporaPremium podpora: Rozšířená podpora pro předplatitele s rychlejší odezvou
 ```
-# ZávěrZávěr
+# Závěr
 
-## Zhodnocení projektuZhodnocení projektu
+## Zhodnocení projektu
 
 Projekt LifeMaxx úspěšně implementoval všechny plánované funkce a splnil stanovené cíle. Aplikace poskytuje komplexní řešení pro sledování doplňků stravy,
 spánku, hydratace a výživy. Uživatelské rozhraní je intuitivní a responzivní díky využití moderních technologií jako Jetpack Compose.
@@ -170,7 +170,7 @@ spánku, hydratace a výživy. Uživatelské rozhraní je intuitivní a responzi
 Během vývoje se objevily výzvy především v oblasti offline synchronizace dat a implementace skenování čárových kódů. Pro zlepšení by bylo vhodné rozšířit testovací
 pokrytí a optimalizovat výkon na starších zařízeních.
 
-## Získané zkušenostiZískané zkušenosti
+## Získané zkušenosti
 
 Během vývoje jsem získal cenné zkušenosti v následujících oblastech:
 
@@ -181,7 +181,7 @@ Využití Firebase Firestore pro ukládání a synchronizaci dat
 Implementace offline režimu s lokálním ukládáním
 Dependency injection pomocí Koin
 ```
-## Možné budoucí rozšířeníMožné budoucí rozšíření
+## Možné budoucí rozšíření
 
 Pro budoucí verze aplikace zvažuji následující rozšíření:
 
@@ -194,7 +194,7 @@ Pro budoucí verze aplikace zvažuji následující rozšíření:
 6. Rozšíření databáze doplňkůRozšíření databáze doplňků: Předvyplněná databáze běžných doplňků stravy a léků
 7. Multiplatformní verzeMultiplatformní verze: Rozšíření na iOS a webovou platformu
 ```
-# Release notesRelease notes
+# Release notes
 
 ```
 Přidán offline režim s lokální synchronizací dat
