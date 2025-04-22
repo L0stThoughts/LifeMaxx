@@ -99,7 +99,7 @@ SharedPreferences pro lokální ukládání v offline režimu
 ```
 # Development/Platforma
 
-## Programovací jazykyProgramovací jazyky
+## Programovací jazyky
 
 
 ```
