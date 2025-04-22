@@ -4,7 +4,7 @@
 
 ### Aktuální verze 1.0.0
 
-# Seznam použitých zkratekSeznam použitých zkratek
+# Seznam použitých zkratek
 
 ```
 UI = User Interface (Uživatelské rozhraní)
