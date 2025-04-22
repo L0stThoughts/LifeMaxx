@@ -1,18 +1,8 @@
-# Dokumentace k produktu: LifeMaxxDokumentace k produktu: LifeMaxx
+### Informace
 
-# HlavičkaHlavička
+### Autor: Daniel Štuka
 
-### InformaceInformace HodnotaHodnota
-
-### Autor: DanielŠtuka
-
-### Třída: C4b
-
-### Datum prvního vydání: 23.3.
-
-### Datum poslední aktualizace: 23.3.
-
-### Aktuální verze 3.6.
+### Aktuální verze 1.0.0
 
 # Seznam použitých zkratekSeznam použitých zkratek
 
